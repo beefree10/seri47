@@ -184,27 +184,10 @@ body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;max
 .status-bar{background:#0a2240;color:#90bbee;text-align:center;font-size:10px;padding:4px 8px;position:sticky;top:0;z-index:200}
 #toast-box{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a1a2a;color:#fff;padding:10px 20px;border-radius:20px;font-size:12px;font-weight:600;display:none;z-index:9999;white-space:nowrap;max-width:90vw;text-align:center}
 
-/* ===== LOGIN OVERLAY ===== */
-#login-overlay{position:fixed;inset:0;background:#0a0c10;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;}
-#login-overlay.hidden{display:none;}
-.login-box{background:#1a1f28;border:1px solid rgba(240,180,41,0.3);border-radius:20px;padding:48px 40px;width:340px;text-align:center;box-shadow:0 0 60px rgba(240,180,41,0.08);}
-.login-logo{font-size:48px;margin-bottom:8px;}
-.login-title{font-size:22px;font-weight:700;color:#e8eaf0;margin-bottom:4px;}
-.login-sub{font-size:13px;color:#555e72;margin-bottom:32px;}
-.login-input-wrap{position:relative;margin-bottom:16px;}
-.login-input{width:100%;padding:14px 18px;background:#0f1218;border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;color:#e8eaf0;font-size:15px;outline:none;transition:.2s;box-sizing:border-box;letter-spacing:2px;}
-.login-input:focus{border-color:rgba(240,180,41,0.5);box-shadow:0 0 0 3px rgba(240,180,41,0.08);}
-.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#f0b429,#ffd666);border:none;border-radius:12px;color:#0a0c10;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:.5px;}
-.login-btn:hover{opacity:.9;transform:translateY(-1px);}
-.login-error{color:#ff5252;font-size:13px;margin-top:12px;min-height:18px;}
-.login-attempts{color:#555e72;font-size:11px;margin-top:8px;}
 
 </style>
 </head>
 <body>
-<div id="login-overlay">
-  <div class="login-box">
-    <div class="login-logo">🐝</div>
     <div class="login-title">Seri47 Dashboard</div>
     <div class="login-sub">허니비 전용 대시보드</div>
     <div class="login-input-wrap">
@@ -722,20 +705,6 @@ function renderAutoNotify(){const items=[{th:'ส่งใบแจ้งหน�
 function toast(msg){const el=document.getElementById('toast-box');el.textContent=msg;el.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a1a2a;color:#fff;padding:10px 18px;border-radius:20px;font-size:12px;font-weight:600;display:block;z-index:9999;white-space:nowrap;max-width:90vw;text-align:center';clearTimeout(window._t);window._t=setTimeout(()=>{el.style.display='none';},2400);}
 function closeSheet(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open')}));
-</script>
-<script>
-(function(){if(sessionStorage.getItem('hb_auth')==='ok')document.getElementById('login-overlay').classList.add('hidden');
-document.addEventListener('DOMContentLoaded',function(){var el=document.getElementById('login-pw');if(el)el.addEventListener('keydown',function(e){if(e.key==='Enter')checkLogin();});});})();
-let _attempts=0;
-async function checkLogin(){
-  const pw=document.getElementById('login-pw').value;
-  const err=document.getElementById('login-error');
-  if(!pw){err.textContent='비밀번호를 입력해주세요.';return;}
-  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pw));
-  const hash=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-  if(hash==='21b79198ed4583ab2a70ccde81b20aa43c8b28201b2262636d306d3bb87958c7'){sessionStorage.setItem('hb_auth','ok');document.getElementById('login-overlay').classList.add('hidden');}
-  else{_attempts++;document.getElementById('login-pw').value='';err.textContent='비밀번호가 틀렸습니다.';if(_attempts>=3)document.getElementById('login-attempts').textContent='시도 '+_attempts+'회';}
-}
 </script>
 </body>
 </html>
