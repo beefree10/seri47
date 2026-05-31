@@ -251,6 +251,16 @@ textarea.form-input{min-height:70px;resize:vertical}
       <div class="bar"><div class="bar-fill" id="o-bar" style="width:0%"></div></div>
       <div style="font-size:10px;color:var(--muted);text-align:right" id="o-pct">0% เก็บได้ / collected</div>
     </div>
+    <div class="card" style="border-left:3px solid var(--primary)">
+      <div class="card-title">💳 ยืนยันการชำระจาก SMS / Auto-match bank SMS</div>
+      <div class="card-sub">วาง SMS เงินเข้าจากธนาคาร → จับคู่ห้องอัตโนมัติด้วยเลขสตางค์ / Paste bank SMS; matched by satang code (.xx)</div>
+      <textarea class="form-input" id="sms-in" placeholder="วางข้อความ SMS ที่นี่… / Paste deposit SMS here…" style="min-height:70px"></textarea>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" style="flex:1" onclick="smsSample()">📋 ตัวอย่าง / Sample</button>
+        <button class="btn btn-primary" style="flex:2" onclick="parseSMS()">🔎 จับคู่อัตโนมัติ / Match</button>
+      </div>
+      <div class="read-status" id="sms-res" style="margin-top:8px;display:none"></div>
+    </div>
     <div class="card" style="border-left:3px solid var(--orange)">
       <div class="card-title">🆚 BeeHome vs Livin</div>
       <table class="tbl"><tr><td></td><td style="font-weight:700;color:var(--orange)">Livin</td><td style="font-weight:700;color:var(--green)">BeeHome</td></tr>
@@ -328,6 +338,22 @@ const eU=u=>(u.eCurr!=null&&u.ePrev!=null)?Math.max(0,u.eCurr-u.ePrev):0;
 const wU=u=>(u.wCurr!=null&&u.wPrev!=null)?Math.max(0,u.wCurr-u.wPrev):0;
 const totalOf=u=>u.rent+eU(u)*ELEC_RATE+wU(u)*WATER_RATE+(SERVICE_FEE||0);
 const fmt=n=>"฿"+Number(n).toLocaleString(undefined,{maximumFractionDigits:2});
+const fmt2=n=>"฿"+Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const payCode=u=>(u.floor-1)*20+((u.id%100)-1);
+const payAmt=u=>u.prevTotal+payCode(u)/100;
+function smsSample(){const u=occ().find(x=>!x.paid);if(!u){toast('ไม่มีห้องค้าง / No outstanding');return;}
+  document.getElementById('sms-in').value="KBANK แจ้งเงินเข้า: บัญชี xxx-x-x1234-5 รับโอน "+fmt2(payAmt(u)).slice(1)+" บาท 31/05/26 14:22 คงเหลือ 1,204,556.00 บาท";}
+function parseSMS(){
+  const t=document.getElementById('sms-in').value||"";
+  const nums=(t.match(/[\d,]+\.\d{2}/g)||[]).map(s=>parseFloat(s.replace(/,/g,'')));
+  const res=document.getElementById('sms-res');res.style.display='block';
+  let matched=[];
+  nums.forEach(amt=>{const u=occ().find(x=>!x.paid&&Math.round(payAmt(x)*100)===Math.round(amt*100));if(u){u.paid=true;matched.push(u);}});
+  if(matched.length){renderOwn();res.className='read-status live';
+    res.innerHTML="✅ จับคู่อัตโนมัติ / Auto-matched: "+matched.map(u=>"ห้อง "+u.id+" ("+u.tenant+") "+fmt2(payAmt(u))).join(" · ");
+    document.getElementById('sms-in').value="";toast("✅ "+matched.length+" ห้อง บันทึกชำระ / recorded");}
+  else{res.className='read-status demo';res.textContent="⚠️ ไม่พบยอดตรงกับห้องค้าง — ตรวจเลขสตางค์ (.xx) / No outstanding room matches the amount's satang code";}
+}
 
 const REPAIRS=[{rm:108,t:"แอร์ไม่เย็น / Air-con not cooling",who:"Suda K.",st:"open"},{rm:214,t:"ก๊อกน้ำรั่ว / Leaking faucet",who:"Chen Lin",st:"progress"},{rm:401,t:"ไฟห้องน้ำเสีย / Bathroom light out",who:"Park Min",st:"open"},{rm:512,t:"ประตูล็อกไม่ได้ / Door won't lock",who:"Yuki M.",st:"open"}];
 let NOTICES=[
@@ -423,7 +449,7 @@ function renderOwn(){
   const billed=occ().reduce((s,u)=>s+u.prevTotal,0),recv=occ().filter(u=>u.paid).reduce((s,u)=>s+u.prevTotal,0),out=billed-recv;
   document.getElementById('o-billed').textContent=fmt(billed);document.getElementById('o-recv').textContent=fmt(recv);document.getElementById('o-out').textContent=fmt(out);
   const pct=Math.round(recv/billed*100);document.getElementById('o-bar').style.width=pct+"%";document.getElementById('o-pct').textContent=pct+"% เก็บได้ / collected";
-  document.getElementById('o-odlist').innerHTML=occ().filter(u=>!u.paid).slice(0,8).map(u=>`<div class="li"><span class="li-ic">🔴</span><div class="li-info"><div class="li-t">ห้อง ${u.id} — ${u.tenant}</div><div class="li-s">ค้าง / Outstanding ${fmt(u.prevTotal)}</div></div><button class="btn-sm btn-sm-out" onclick="toast('ส่งทวงถาม / Reminder sent ✅')">ทวง</button></div>`).join("");
+  document.getElementById('o-odlist').innerHTML=occ().filter(u=>!u.paid).slice(0,8).map(u=>`<div class="li"><span class="li-ic">🔴</span><div class="li-info"><div class="li-t">ห้อง ${u.id} — ${u.tenant}</div><div class="li-s">ค้าง / Outstanding <b>${fmt2(payAmt(u))}</b> <span style="color:var(--primary)">·.${String(payCode(u)).padStart(2,'0')}</span></div></div><button class="btn-sm btn-sm-out" onclick="toast('ส่งทวงถาม / Reminder sent ✅')">ทวง</button></div>`).join("");
   document.getElementById('r-jun').textContent="ออกบิล "+fmt(billed)+" · รับ "+fmt(recv);
   document.getElementById('r-rate').textContent=pct+"% ("+occ().filter(u=>u.paid).length+"/"+occ().length+" ห้อง)";
   document.getElementById('r-save').textContent=fmt(Math.round(billed*0.2));
