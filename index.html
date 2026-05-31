@@ -332,6 +332,9 @@ function buildUnits(){units=[];for(let f=1;f<=5;f++)for(let r=1;r<=20;r++){const
     vac,prevTotal,paid:vac?false:(id*3%100<72),sent:false,
     phone:vac?'':'08'+String(1000000+(id*131)%8999999),lineLinked:vac?false:(id*5%100<82)});}}
 buildUnits();
+window.units=units;
+window.seri47Rerender=function(){if(role==='mg')renderMg();else if(role==='own')renderOwn();else if(role==='tn')renderTn();};
+function persist(){try{window.seri47Persist&&window.seri47Persist();}catch(e){}}
 const occ=()=>units.filter(u=>!u.vac);
 const metered=()=>occ().filter(u=>u.eCurr!=null);
 const eU=u=>(u.eCurr!=null&&u.ePrev!=null)?Math.max(0,u.eCurr-u.ePrev):0;
@@ -352,7 +355,7 @@ function parseSMS(){
   nums.forEach(amt=>{const u=occ().find(x=>!x.paid&&Math.round(payAmt(x)*100)===Math.round(amt*100));if(u){u.paid=true;matched.push(u);}});
   if(matched.length){renderOwn();res.className='read-status live';
     res.innerHTML="✅ จับคู่อัตโนมัติ / Auto-matched: "+matched.map(u=>"ห้อง "+u.id+" ("+u.tenant+") "+fmt2(payAmt(u))).join(" · ");
-    document.getElementById('sms-in').value="";toast("✅ "+matched.length+" ห้อง บันทึกชำระ / recorded");}
+    document.getElementById('sms-in').value="";toast("✅ "+matched.length+" ห้อง บันทึกชำระ / recorded");persist();}
   else{res.className='read-status demo';res.textContent="⚠️ ไม่พบยอดตรงกับห้องค้าง — ตรวจเลขสตางค์ (.xx) / No outstanding room matches the amount's satang code";}
 }
 
@@ -365,7 +368,10 @@ const TENANT_ID=312;
 
 /* ─── shell ─── */
 let role=null,curFloorB=1,curFloorR=1;
-function login(r){role=r;document.getElementById('login').style.display='none';
+async function sha256hex(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+const ROLE_PW={mg:"846fb4094be74efe9ea288fd5b0f74ba4c408737ac4b4925448f436f38410d55",own:"d72320c10a77ba94510d2dc924ed8734cbdedb240b6fd9b9cd85d7d067c6ae34"};
+async function login(r){if(ROLE_PW[r]){const p=prompt(r==='mg'?'รหัสผ่านผู้จัดการ / Manager password':'รหัสผ่านเจ้าของ / Owner password');if(p===null)return;if((await sha256hex(p))!==ROLE_PW[r]){alert('❌ รหัสผ่านไม่ถูกต้อง / Wrong password');return;}}doLogin(r);}
+function doLogin(r){role=r;document.getElementById('login').style.display='none';
   document.getElementById('topbar').classList.add('show');
   document.getElementById('tb-badge').textContent=r==='mg'?'🔑 Manager':r==='own'?'👑 Owner':'🏠 Tenant';
   ['mg','own','tn'].forEach(x=>{document.getElementById('sc-'+x).classList.toggle('active',x===r);document.getElementById('nav-'+x).classList.toggle('show',x===r)});
@@ -408,7 +414,7 @@ function setMeter(id,k,v,el){const u=units.find(x=>x.id===id);u[k==='e'?'eCurr':
   const e=document.getElementById('eu-'+id),w=document.getElementById('wu-'+id),t=document.getElementById('tot-'+id);
   if(e){const x=eU(u);e.textContent=x?x+'u·'+fmt(x*ELEC_RATE):'—';}if(w){const x=wU(u);w.textContent=x?x+'u·'+fmt(x*WATER_RATE):'—';}if(t)t.textContent=fmt(totalOf(u));
   document.getElementById('bill-grand').textContent=fmt(occ().reduce((s,u)=>s+totalOf(u),0));
-  document.getElementById('bill-cnt').textContent=metered().length;ringSet();}
+  document.getElementById('bill-cnt').textContent=metered().length;ringSet();persist();}
 function setRead(m,c){const e=document.getElementById('read-status');e.textContent=m;e.className="read-status "+(c||"");}
 function toB64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f)});}
 async function visionMeters(file,multi){
@@ -426,7 +432,7 @@ async function onMulti(ev){const files=ev.target.files;if(!files.length)return;e
     if(Array.isArray(arr)){live=true;arr.forEach(o=>{const u=units.find(x=>x.id===+o.room&&!x.vac);if(u&&typeof o.reading==="number"&&o.reading>=u.ePrev){u.eCurr=o.reading;applied++;}});}}
   if(applied===0){occ().forEach(u=>{if(u.eCurr==null)u.eCurr=u.ePrev+(35+Math.floor(Math.random()*95));});setRead("📷 เดโม (ออฟไลน์) — เติมทุกห้อง / demo fallback","demo");}
   else setRead("✅ AI อ่าน "+applied+" ห้องจาก "+files.length+" รูป / read "+applied+" rooms","live");
-  renderBill();toast(applied?("🤖 AI: "+applied+" ห้อง"):"📷 เดโม");}
+  renderBill();persist();toast(applied?("🤖 AI: "+applied+" ห้อง"):"📷 เดโม");}
 async function onOne(ev){const f=ev.target.files[0];if(!f)return;ev.target.value="";showThumbs([f]);
   const id=+document.getElementById('read-unit').value,u=units.find(x=>x.id===id);
   setRead("🤖 อ่านมิเตอร์ห้อง "+id+"…");const r=await visionMeters(f,false);
@@ -434,8 +440,8 @@ async function onOne(ev){const f=ev.target.files[0];if(!f)return;ev.target.value
   if(val==null||val<u.ePrev){val=u.ePrev+(35+Math.floor(Math.random()*95));mode="demo";}else mode="live";
   u.eCurr=val;setRead(mode==="live"?"✅ AI อ่านได้ / read OK":"📷 เดโม (ออฟไลน์) / demo",mode);
   const l=document.getElementById('read-last');l.style.display="block";l.innerHTML=`ห้อง <b>${id}</b> → มิเตอร์ <b>${val}</b> (${eU(u)} หน่วย · ${fmt(eU(u)*ELEC_RATE)})`;
-  renderBill();toast(mode==="live"?"🤖 ห้อง "+id:"📷 เดโม ห้อง "+id);}
-function autoAll(){occ().forEach(u=>{if(u.eCurr==null)u.eCurr=u.ePrev+(35+Math.floor(Math.random()*95));if(u.wCurr==null)u.wCurr=u.wPrev+(1+Math.floor(Math.random()*6));});setRead("⚡ เติมเดโมครบทุกห้อง / demo filled all","demo");renderBill();toast("⚡ เดโม "+occ().length+" ห้อง");}
+  renderBill();persist();toast(mode==="live"?"🤖 ห้อง "+id:"📷 เดโม ห้อง "+id);}
+function autoAll(){occ().forEach(u=>{if(u.eCurr==null)u.eCurr=u.ePrev+(35+Math.floor(Math.random()*95));if(u.wCurr==null)u.wCurr=u.wPrev+(1+Math.floor(Math.random()*6));});setRead("⚡ เติมเดโมครบทุกห้อง / demo filled all","demo");renderBill();persist();toast("⚡ เดโม "+occ().length+" ห้อง");}
 function renderRooms(){
   document.getElementById('rooms-floor').innerHTML=[1,2,3,4,5].map(f=>`<button class="floor-btn ${f===curFloorR?'active':''}" onclick="curFloorR=${f};renderRooms()">ชั้น ${f}</button>`).join("");
   document.getElementById('rooms-grid').innerHTML=units.filter(u=>u.floor===curFloorR).map(u=>{const c=u.vac?'vac':(!u.paid?'od':'occ');return `<div class="room-cell ${c}" onclick="${u.vac?'':'openTenant('+u.id+')'}"><div class="room-n">${u.id}</div><div class="room-dot"></div></div>`;}).join("");
@@ -505,9 +511,18 @@ let sheetTpl;
 function bulkSend(){const list=occ();document.getElementById('ov').classList.add('open');
   document.getElementById('sheet').innerHTML=`<div class="sh-handle"></div><div class="sh-title">📨 กำลังส่ง LINE</div><div class="sh-sub">Sending invoices…</div><div class="sending"><div id="sc" style="font-size:34px;font-weight:700;color:var(--line)">0</div><div style="font-size:11px;color:var(--muted)">/ ${list.length} ห้อง</div><div class="send-bar"><div class="send-fill" id="sf"></div></div></div>`;
   let i=0;const t=setInterval(()=>{i++;document.getElementById('sc').textContent=i;document.getElementById('sf').style.width=(i/list.length*100)+"%";
-    if(i>=list.length){clearInterval(t);list.forEach(u=>u.sent=true);setTimeout(()=>{closeSheet();renderBill();alert("✅ ส่งสำเร็จ "+list.length+" ห้อง — LINE + PromptPay QR\n실제 운영: LINE Messaging API push 로 교체.");},420);}},20);}
+    if(i>=list.length){clearInterval(t);list.forEach(u=>u.sent=true);persist();setTimeout(()=>{closeSheet();renderBill();alert("✅ ส่งสำเร็จ "+list.length+" ห้อง — LINE + PromptPay QR\n실제 운영: LINE Messaging API push 로 교체.");},420);}},20);}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display="block";clearTimeout(t._);t._=setTimeout(()=>t.style.display="none",1900);}
 sheetTpl=document.getElementById('sheet').innerHTML;
+</script>
+<div id="fb-status" style="position:fixed;bottom:4px;left:4px;font-size:9px;color:#7080a0;z-index:9999;background:rgba(255,255,255,.7);padding:1px 5px;border-radius:6px"></div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import {getDatabase,ref,set,onValue} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+const app=initializeApp({apiKey:"AIzaSyAKsN2vR74qfJtPCLw_lw-QrIzSabvnHv0",authDomain:"bee-free-9350a.firebaseapp.com",databaseURL:"https://bee-free-9350a-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"bee-free-9350a",storageBucket:"bee-free-9350a.firebasestorage.app",messagingSenderId:"209878063440",appId:"1:209878063440:web:78fc19709239e7b5803455"});
+const db=getDatabase(app);const SREF=ref(db,"seri47/state");let booted=false;
+window.seri47Persist=function(){if(!window.units)return;const rooms={};window.units.forEach(u=>{rooms[u.id]={paid:!!u.paid,eCurr:(u.eCurr??null),wCurr:(u.wCurr??null),sent:!!u.sent,tenant:(u.tenant??null),phone:(u.phone??null),lineLinked:!!u.lineLinked};});set(SREF,{rooms:rooms,ts:Date.now()}).then(function(){var e=document.getElementById("fb-status");if(e)e.textContent="☁️ บันทึกแล้ว / saved";}).catch(function(){});};
+onValue(SREF,function(snap){var v=snap.val();var e=document.getElementById("fb-status");if(!v||!v.rooms){if(e)e.textContent="☁️ Firebase ว่าง / empty";if(!booted&&window.seri47Persist){booted=true;window.seri47Persist();}return;}if(window.units){window.units.forEach(function(u){var s=v.rooms[u.id];if(s){u.paid=s.paid;u.eCurr=s.eCurr;u.wCurr=s.wCurr;u.sent=s.sent;if(s.tenant!=null)u.tenant=s.tenant;if(s.phone!=null)u.phone=s.phone;u.lineLinked=s.lineLinked;}});}booted=true;if(window.seri47Rerender)window.seri47Rerender();if(e)e.textContent="☁️ ซิงค์ / synced";});
 </script>
 </body>
 </html>
