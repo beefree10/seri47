@@ -340,7 +340,8 @@ const totalOf=u=>u.rent+eU(u)*ELEC_RATE+wU(u)*WATER_RATE+(SERVICE_FEE||0);
 const fmt=n=>"฿"+Number(n).toLocaleString(undefined,{maximumFractionDigits:2});
 const fmt2=n=>"฿"+Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 const payCode=u=>(u.floor-1)*20+((u.id%100)-1);
-const payAmt=u=>u.prevTotal+payCode(u)/100;
+function payAmtOf(bill,u){let a=Math.floor(bill)+payCode(u)/100;if(a>=bill)a-=1;return Math.max(0,a);}
+const payAmt=u=>payAmtOf(u.prevTotal,u);
 function smsSample(){const u=occ().find(x=>!x.paid);if(!u){toast('ไม่มีห้องค้าง / No outstanding');return;}
   document.getElementById('sms-in').value="KBANK แจ้งเงินเข้า: บัญชี xxx-x-x1234-5 รับโอน "+fmt2(payAmt(u)).slice(1)+" บาท 31/05/26 14:22 คงเหลือ 1,204,556.00 บาท";}
 function parseSMS(){
@@ -460,8 +461,9 @@ function renderTn(){const u=units.find(x=>x.id===TENANT_ID);if(u.eCurr==null){u.
   const e=eU(u),w=wU(u),tot=totalOf(u);
   document.getElementById('tn-room').textContent="ห้อง/Room "+u.id+" · "+u.tenant+" · มิ.ย./Jun 2026";
   document.getElementById('tn-calc').innerHTML=`<tr><td>ค่าเช่า <span class="en">Rental Fee</span></td><td>${fmt(u.rent)}</td></tr><tr><td>ค่าไฟ <span class="en">Electricity (${u.ePrev} ${u.eCurr}) ${e}u×฿${ELEC_RATE}</span></td><td>${fmt(e*ELEC_RATE)}</td></tr><tr><td>ค่าน้ำ <span class="en">Water (${u.wPrev} ${u.wCurr}) ${w}u×฿${WATER_RATE}</span></td><td>${fmt(w*WATER_RATE)}</td></tr><tr><td>รวม / Total</td><td>${fmt(tot)}</td></tr>`;
-  document.getElementById('tn-amt').textContent=fmt(tot);document.getElementById('tn-pp').textContent=PP_ID;document.getElementById('tn-ref').textContent="SR47-"+u.id;
-  document.getElementById('tn-qr').innerHTML="";new QRCode(document.getElementById('tn-qr'),{text:ppPayload(tot),width:150,height:150,correctLevel:QRCode.CorrectLevel.M});
+  const pay=payAmtOf(tot,u);
+  document.getElementById('tn-amt').innerHTML=fmt2(pay)+' <span style="font-size:11px;color:var(--muted)">(บิล '+fmt(tot)+' · ปัดเศษให้ / rounded down)</span>';document.getElementById('tn-pp').textContent=PP_ID;document.getElementById('tn-ref').textContent="SR47-"+u.id;
+  document.getElementById('tn-qr').innerHTML="";new QRCode(document.getElementById('tn-qr'),{text:ppPayload(pay),width:150,height:150,correctLevel:QRCode.CorrectLevel.M});
   renderTnNotice();}
 function renderTnNotice(){const el=document.getElementById('tn-notice-list');if(el)el.innerHTML=NOTICES.map(n=>`<div class="notice-card ${n.livin?'livin':''}"><div class="nc-top"><span class="nc-from">${n.from}</span><span>${n.date}</span></div><div class="nc-body">${n.body}</div></div>`).join("");}
 
@@ -474,9 +476,10 @@ function ppPayload(a){const m=tlv("00","A000000677010111")+tlv("01","0066"+PP_ID
 function openSheet(id){const u=units.find(x=>x.id===id);const e=eU(u),w=wU(u),tot=totalOf(u);
   document.getElementById('sh-room').textContent="ห้อง / Room "+id;document.getElementById('sh-sub').textContent=(u.tenant||"")+" · มิ.ย./Jun 2026 · #"+(400000+id);
   document.getElementById('sh-calc').innerHTML=`<tr><td>ค่าเช่า <span class="en">Rent</span></td><td>${fmt(u.rent)}</td></tr><tr><td>ค่าไฟ <span class="en">Elec (${u.ePrev} ${u.eCurr??'—'}) ${e}u×฿${ELEC_RATE}</span></td><td>${fmt(e*ELEC_RATE)}</td></tr><tr><td>ค่าน้ำ <span class="en">Water (${u.wPrev} ${u.wCurr??'—'}) ${w}u×฿${WATER_RATE}</span></td><td>${fmt(w*WATER_RATE)}</td></tr>${SERVICE_FEE>0?`<tr><td>ค่าส่วนกลาง <span class="en">Service</span></td><td>${fmt(SERVICE_FEE)}</td></tr>`:''}<tr><td>รวม / Total</td><td>${fmt(tot)}</td></tr>`;
-  document.getElementById('sh-amt').textContent=fmt(tot);document.getElementById('sh-pp').textContent=PP_ID;document.getElementById('sh-ref').textContent="SR47-"+id;
-  document.getElementById('sh-qr').innerHTML="";new QRCode(document.getElementById('sh-qr'),{text:ppPayload(tot),width:150,height:150,correctLevel:QRCode.CorrectLevel.M});
-  document.getElementById('sh-line').textContent=`🏢 Seri 47 Residence\nบิล/Invoice มิ.ย. · ห้อง ${id}\n\nค่าเช่า ${fmt(u.rent)}\nค่าไฟ ${e}u ${fmt(e*ELEC_RATE)}\nค่าน้ำ ${w}u ${fmt(w*WATER_RATE)}\n──────\nรวม ${fmt(tot)}\n\n📲 สแกน PromptPay · Ref SR47-${id}`;
+  const pay=payAmtOf(tot,u);
+  document.getElementById('sh-amt').innerHTML=fmt2(pay)+' <span style="font-size:10px;color:var(--muted)">(บิล '+fmt(tot)+')</span>';document.getElementById('sh-pp').textContent=PP_ID;document.getElementById('sh-ref').textContent="SR47-"+id;
+  document.getElementById('sh-qr').innerHTML="";new QRCode(document.getElementById('sh-qr'),{text:ppPayload(pay),width:150,height:150,correctLevel:QRCode.CorrectLevel.M});
+  document.getElementById('sh-line').textContent=`🏢 Seri 47 Residence\nบิล/Invoice มิ.ย. · ห้อง ${id}\n\nค่าเช่า ${fmt(u.rent)}\nค่าไฟ ${e}u ${fmt(e*ELEC_RATE)}\nค่าน้ำ ${w}u ${fmt(w*WATER_RATE)}\n──────\nรวม ${fmt(tot)}\nชำระ/Pay ${fmt2(payAmtOf(tot,u))}\n\n📲 สแกน PromptPay · Ref SR47-${id}`;
   document.getElementById('ov').classList.add('open');}
 function closeSheet(){document.getElementById('ov').classList.remove('open');document.getElementById('sheet').innerHTML=sheetTpl;}
 function openTenant(id){const u=units.find(x=>x.id===id);
