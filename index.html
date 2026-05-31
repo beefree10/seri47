@@ -318,6 +318,16 @@ textarea.form-input{min-height:70px;resize:vertical}
   <button class="btn btn-line" onclick="closeSheet();toast('ส่งแล้ว / Sent ✅')">📨 ส่งห้องนี้ / Send this room</button>
   <button class="btn btn-outline" onclick="closeSheet()">ปิด / Close</button>
 </div></div>
+<div id="pw-ov" style="display:none;position:fixed;inset:0;background:rgba(10,34,64,.92);z-index:10000;align-items:center;justify-content:center;flex-direction:column;padding:24px">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:320px;text-align:center;font-family:'Sarabun',sans-serif">
+    <div style="font-size:34px">🔒</div>
+    <div id="pw-label" style="font-weight:700;margin:6px 0 14px;color:#1e2535"></div>
+    <input id="pw-input" type="password" autocomplete="off" style="width:100%;padding:12px;border:1px solid #dde3ee;border-radius:10px;font-size:16px;text-align:center;box-sizing:border-box" placeholder="รหัสผ่าน / password" onkeydown="if(event.key==='Enter')pwSubmit()">
+    <div id="pw-err" style="display:none;color:#c0321a;font-size:12px;margin-top:8px">❌ รหัสผ่านไม่ถูกต้อง / Wrong password</div>
+    <button onclick="pwSubmit()" style="margin-top:14px;width:100%;padding:12px;border:none;border-radius:10px;background:#1a5fa8;color:#fff;font-weight:700;font-size:15px;cursor:pointer">เข้าสู่ระบบ / Enter</button>
+    <button onclick="document.getElementById('pw-ov').style.display='none'" style="margin-top:8px;width:100%;padding:10px;border:none;background:none;color:#7080a0;font-size:13px;cursor:pointer">ยกเลิก / Cancel</button>
+  </div>
+</div>
 <div id="toast"></div>
 
 <script>
@@ -369,8 +379,10 @@ const TENANT_ID=312;
 /* ─── shell ─── */
 let role=null,curFloorB=1,curFloorR=1;
 async function sha256hex(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
-const ROLE_PW={mg:"846fb4094be74efe9ea288fd5b0f74ba4c408737ac4b4925448f436f38410d55",own:"d72320c10a77ba94510d2dc924ed8734cbdedb240b6fd9b9cd85d7d067c6ae34"};
-async function login(r){if(ROLE_PW[r]){const p=prompt(r==='mg'?'รหัสผ่านผู้จัดการ / Manager password':'รหัสผ่านเจ้าของ / Owner password');if(p===null)return;if((await sha256hex(p))!==ROLE_PW[r]){alert('❌ รหัสผ่านไม่ถูกต้อง / Wrong password');return;}}doLogin(r);}
+const ROLE_PW={mg:"d1b79c5b436665ba286223e6bec412d24775a06d7dd1d23c39d44b0f67b4f825",own:"996a7d3104bb209d3028290cdb52e773735891a98db4da1e6ebeae2bf28715d7"};
+let pendingRole=null;
+function login(r){if(ROLE_PW[r]){pendingRole=r;document.getElementById('pw-label').textContent=(r==='mg'?'รหัสผ่านผู้จัดการ / Manager':'รหัสผ่านเจ้าของ / Owner');document.getElementById('pw-input').value='';document.getElementById('pw-err').style.display='none';document.getElementById('pw-ov').style.display='flex';setTimeout(function(){document.getElementById('pw-input').focus();},60);}else doLogin(r);}
+async function pwSubmit(){const r=pendingRole;if(!r)return;const v=document.getElementById('pw-input').value;if((await sha256hex(v))===ROLE_PW[r]){document.getElementById('pw-ov').style.display='none';doLogin(r);}else{document.getElementById('pw-err').style.display='block';}}
 function doLogin(r){role=r;document.getElementById('login').style.display='none';
   document.getElementById('topbar').classList.add('show');
   document.getElementById('tb-badge').textContent=r==='mg'?'🔑 Manager':r==='own'?'👑 Owner':'🏠 Tenant';
