@@ -339,7 +339,7 @@ const wU=u=>(u.wCurr!=null&&u.wPrev!=null)?Math.max(0,u.wCurr-u.wPrev):0;
 const totalOf=u=>u.rent+eU(u)*ELEC_RATE+wU(u)*WATER_RATE+(SERVICE_FEE||0);
 const fmt=n=>"฿"+Number(n).toLocaleString(undefined,{maximumFractionDigits:2});
 const fmt2=n=>"฿"+Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-const payCode=u=>(u.floor-1)*20+((u.id%100)-1);
+const payCode=u=>((u.floor-1)*20+(u.id%100))%100;
 function payAmtOf(bill,u){let a=Math.floor(bill)+payCode(u)/100;if(a>=bill)a-=1;return Math.max(0,a);}
 const payAmt=u=>payAmtOf(u.prevTotal,u);
 function smsSample(){const u=occ().find(x=>!x.paid);if(!u){toast('ไม่มีห้องค้าง / No outstanding');return;}
