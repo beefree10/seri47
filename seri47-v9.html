@@ -709,7 +709,59 @@ async function visionMeters(file,multi){const b64=await toB64(file),mime=file.ty
 function showThumbs(files){document.getElementById('thumbs').innerHTML="";[...files].forEach(f=>{const img=document.createElement('img');img.className='thumb';img.src=URL.createObjectURL(f);document.getElementById('thumbs').appendChild(img);});}
 async function onMulti(ev){const files=[...ev.target.files];if(!files.length)return;ev.target.value="";showThumbs(files);setRead("🤖 Claude อ่าน "+files.length+" รูป…");let applied=0,err=null;for(const f of files){try{const arr=await visionMeters(f,true);if(Array.isArray(arr)){arr.forEach(o=>{const rm=parseInt(o.room,10),rd=parseInt(o.reading,10),u=units.find(x=>x.id===rm&&!x.vac);if(u&&!isNaN(rd)){u.eCurr=rd;applied++;}});}}catch(e){err=e.message;}}if(err)setRead("⚠️ error: "+err,"demo");else if(applied===0)setRead("⚠️ ไม่พบ","demo");else setRead("✅ AI อ่าน "+applied+" ห้อง","live");renderBill();persist();toast(applied?"🤖 AI: "+applied+" ห้อง":"⚠️ "+(err?"error":"ไม่ตรง"));}
 async function onOne(ev){const f=ev.target.files[0];if(!f)return;ev.target.value="";showThumbs([f]);const id=+document.getElementById('read-unit').value,u=units.find(x=>x.id===id);setRead("🤖 อ่านมิเตอร์ห้อง "+id+"…");let val=null,err=null;try{const r=await visionMeters(f,false);const rd=r?parseInt(r.reading,10):NaN;if(!isNaN(rd))val=rd;}catch(e){err=e.message;}if(err){setRead("⚠️ error: "+err,"demo");renderBill();persist();return;}if(val==null){setRead("⚠️ ไม่สามารถอ่าน","demo");return;}u.eCurr=val;setRead("✅ อ่านได้","live");const l=document.getElementById('read-last');l.style.display="block";l.innerHTML=`ห้อง <b>${id}</b> → <b>${val}</b> (${eU(u)}u · ${fmt(eU(u)*ELEC_RATE)})`;renderBill();persist();toast("🤖 ห้อง "+id);}
-async function onVideo(ev,mode){const f=ev.target.files[0];if(!f)return;ev.target.value="";setRead("🎥 วิดีโอ…","demo");const url=URL.createObjectURL(f);const vid=document.createElement('video');vid.src=url;vid.muted=true;vid.addEventListener('loadeddata',async()=>{vid.currentTime=0.5;vid.addEventListener('seeked',async()=>{const canvas=document.createElement('canvas');canvas.width=vid.videoWidth;canvas.height=vid.videoHeight;canvas.getContext('2d').drawImage(vid,0,0);canvas.toBlob(async(blob)=>{const frameFile=new File([blob],'frame.jpg',{type:'image/jpeg'});showThumbs([frameFile]);if(mode==='multi')await onMulti({target:{files:[frameFile]}});else await onOne({target:{files:[frameFile]}});URL.revokeObjectURL(url);},'image/jpeg',0.9);},{once:true});},{once:true});vid.load();}
+/* ── 동영상 선명도 측정 (라플라시안 분산): 높을수록 선명 ── */
+function calcSharpness(canvas){
+  const w=canvas.width,h=canvas.height;
+  const sw=Math.floor(w*0.6),sh=Math.floor(h*0.6);
+  const sx=Math.floor(w*0.2),sy=Math.floor(h*0.2);
+  const d=canvas.getContext('2d').getImageData(sx,sy,sw,sh).data;
+  const g=new Float32Array(sw*sh);
+  for(let i=0;i<sw*sh;i++)g[i]=0.299*d[i*4]+0.587*d[i*4+1]+0.114*d[i*4+2];
+  let s=0,s2=0,n=0;
+  for(let y=1;y<sh-1;y++)for(let x=1;x<sw-1;x++){
+    const v=g[(y-1)*sw+x]+g[(y+1)*sw+x]+g[y*sw+x-1]+g[y*sw+x+1]-4*g[y*sw+x];
+    s+=v;s2+=v*v;n++;
+  }
+  const m=s/n;return s2/n-m*m;
+}
+/* ── 특정 시간 프레임 추출 ── */
+function grabFrame(vid,t){
+  return new Promise(res=>{
+    vid.currentTime=t;
+    vid.addEventListener('seeked',()=>{
+      const c=document.createElement('canvas');
+      c.width=vid.videoWidth;c.height=vid.videoHeight;
+      c.getContext('2d').drawImage(vid,0,0);res(c);
+    },{once:true});
+  });
+}
+/* ── 동영상 → 가장 선명한 프레임 추출 후 Claude 판독 ── */
+async function onVideo(ev,mode){
+  const f=ev.target.files[0];if(!f)return;ev.target.value="";
+  setRead("🎥 동영상 로딩…","demo");
+  const url=URL.createObjectURL(f);
+  const vid=document.createElement('video');
+  vid.src=url;vid.muted=true;vid.preload='metadata';
+  await new Promise(res=>{vid.addEventListener('loadedmetadata',res,{once:true});vid.load();});
+  const dur=isFinite(vid.duration)&&vid.duration>0?vid.duration:3;
+  /* 최대 8프레임, 최소 3프레임 균등 추출 */
+  const n=Math.min(8,Math.max(3,Math.floor(dur*2)));
+  setRead(`🎥 ${n}프레임 분석 중…`,"demo");
+  let best=null,bestScore=-1;
+  for(let i=0;i<n;i++){
+    const t=dur*(i+0.5)/n;
+    const c=await grabFrame(vid,t);
+    const score=calcSharpness(c);
+    if(score>bestScore){bestScore=score;best=c;}
+  }
+  URL.revokeObjectURL(url);
+  const blob=await new Promise(res=>best.toBlob(res,'image/jpeg',0.92));
+  const frameFile=new File([blob],'best_frame.jpg',{type:'image/jpeg'});
+  showThumbs([frameFile]);
+  setRead(`🤖 선명도 OK · Claude 판독 중…`,"demo");
+  if(mode==='multi')await onMulti({target:{files:[frameFile]}});
+  else await onOne({target:{files:[frameFile]}});
+}
 function autoAll(){occ().forEach(u=>{if(u.eCurr==null)u.eCurr=u.ePrev+(35+Math.floor(Math.random()*95));if(u.wCurr==null)u.wCurr=u.wPrev+(1+Math.floor(Math.random()*6));});setRead("⚡ เดโมครบ","demo");renderBill();persist();toast("⚡ เดโม "+occ().length+" ห้อง");}
 
 /* REPAIRS / NOTICES */
