@@ -1,3 +1,27 @@
+## 2026-06-04 — LINE QR 자동연결 + 호실 상태 UI 전면 정비 ✅
+
+### LINE QR Auto-Link 완성
+- **LIFF 앱 등록:** LINE Login 채널 → LIFF ID 2010286411-KSjGtKI5
+- **Cloudflare Worker v5 배포:** `/liff` (LIFF 페이지) + `/link` (Firebase 저장) 추가
+- **QR 스캔 흐름:** QR → LIFF 페이지 → 버튼 클릭 → LINE 프로필 자동 저장
+- **저장 데이터:** lineId(userId) · lineName · linePic · lineLinked → Firebase seri47/state/rooms/{room}
+- **앱 반영:** 고객 탭 LINE탭에 프로필 사진+이름+userId 카드 표시
+- **연결 표시 조건:** lineLinked=true AND lineName 존재 시만 LINE✓ (stale 데이터 무시)
+- **테스트 완료:** 411호 QR 스캔 → Ian 프로필 저장 확인
+
+### 호실 상태 UI 전면 정비
+- **payStatus 필드 추가:** paid / overdue (랜덤 paid 제거)
+- **호실 색 우선순위:** 공실(회색) > 연체(빨간) > 블랙리스트(주황) > 입주중(파란)
+- **공실/입주 토글 복귀:** 고객 상세 우측상단 ว่าง ↔ Occupied
+- **납부상태 버튼 추가:** Paid / Overdue — 블랙리스트 위에 배치
+- **미연결 배지:** '—' → '미연결'로 정직하게 표시
+- **Firebase 동기화:** payStatus persist/load 완료
+
+### git 저장소 초기화
+- v1~v9 전체 파일 첫 커밋 (API 키 .gitignore 제외)
+
+---
+
 ## 2026-06-03 (저녁) — v9 완성 + LINE AI CS 자동응답 완성 ★★★
 
 ### v9 개발 완료 (로컬 전용)

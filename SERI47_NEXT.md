@@ -1,10 +1,10 @@
 # SERI47 — NEXT
 **세션 시작 시 가장 먼저 읽을 파일**
-마지막 업데이트: 2026-06-03 (v9 + LINE AI CS 완성)
+마지막 업데이트: 2026-06-04 (LINE QR 자동연결 + 호실 UI 정비)
 
 ---
 
-## 📍 현재 상태 (2026-06-03 최신)
+## 📍 현재 상태 (2026-06-04 최신)
 
 | 항목 | 상태 |
 |---|---|
@@ -13,7 +13,8 @@
 | 호실 구조 | 94호 확정 (1F:101~110, 2~5F:각 21호) |
 | Firebase | bee-free-9350a · seri47/state 경로 |
 | Cloudflare Worker (계량기) | https://seri47-vision.jww8559.workers.dev (동결) |
-| Cloudflare Worker (LINE) | https://seri47-line-webhook.jww8559.workers.dev (v3 가동중) |
+| Cloudflare Worker (LINE) | https://seri47-line-webhook.jww8559.workers.dev (v5 가동중) |
+| LIFF ID | 2010286411-KSjGtKI5 (LINE Login 채널) |
 | 비밀번호 | Manager=bee2026 · Owner=honey2026 · SHA-256 게이트 |
 | PAT 토큰 | honeybee-deploy-2 · 만료 2026-06-30 |
 | LINE OA (테스트) | BEE Free @854lohns — Webhook 연결 완료 |
@@ -22,7 +23,7 @@
 
 ---
 
-## ✅ v9 완성 항목 (2026-06-03)
+## ✅ v9 완성 항목 (2026-06-04 최신)
 
 - [x] 로그인 화면 버전 표기 v9 수정
 - [x] 블랙리스트 필드 + 주황색 구분 (대시보드·방지도·청구·고객파일)
@@ -30,9 +31,13 @@
 - [x] 전자계약 탭 — Seri47 계약서 양식 · 터치서명 2개 (입주자/임대인)
 - [x] TM30 탭 — 자동정보채움 + 태국 이민국 온라인 신고 링크
 - [x] LINE QR 탭 — QR 생성 + 인쇄
+- [x] LINE QR 자동연결 — LIFF 스캔 → 프로필 자동 저장 (lineName·linePic·lineId)
+- [x] 호실 상태 UI — payStatus(paid/overdue) · 공실토글 · 납부상태버튼
+- [x] 호실 색 우선순위 — 공실>연체>블랙리스트>입주중
 - [x] AI CS 퇴거공지(eviction) 옵션 추가
 - [x] 모듈 분리 아키텍처 (로컬 전용)
 - [x] Firebase v9 필드 전체 (암호화값만 저장)
+- [x] git 저장소 초기화 + 커밋 이력 관리 시작
 
 ---
 

@@ -12,10 +12,11 @@
 - 백엔드: Firebase Realtime DB (bee-free-9350a). 배포: beefree10.github.io/seri47/
 - 현재 최신: v8. 다음: v9.
 
-## v9 작업 목록 (확정)
+## v9 작업 목록 (완료 ✅)
 - ~~로그인 화면 버전 표기 v8 -> v9~~ (삭제: v9부터 버전 표시 없음)
-- [ ] 블랙리스트 필드 + 주황색 구분 (보류)
-- [ ] LINE QR 자동 등록 (Cloudflare Worker + Webhook)
+- [x] 블랙리스트 필드 + 주황색 구분 (기존 유지 확인)
+- [x] LINE QR 자동 등록 — LIFF + Cloudflare Worker v5
+- [x] 호실 상태 UI — payStatus · 공실토글 · 납부상태버튼 · 색 우선순위
 - 동결(건드리지 말 것): 계량기 메뉴. 빨간색=연체(현행 유지).
 
 ## 디버깅 규칙 (가장 중요 - 무조건 지킬 것)
