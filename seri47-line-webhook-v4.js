@@ -1,5 +1,5 @@
-// seri47-line-webhook Worker v4
-// 추가: /liff (LIFF 페이지), /link (호실-userId 연결)
+// seri47-line-webhook Worker v5
+// 변경: /link 저장 경로 수정 (units/ → seri47/state/rooms/) + LINE 프로필 전체 저장
 
 const LIFF_ID = "2010286411-KSjGtKI5";
 
@@ -127,12 +127,13 @@ const ROOM = "${room}";
 const WORKER = "${workerOrigin}";
 let lineUserId = null;
 
+let lineProfile = null;
+
 async function init() {
   try {
     await liff.init({ liffId: "${LIFF_ID}" });
     if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
-    const p = await liff.getProfile();
-    lineUserId = p.userId;
+    lineProfile = await liff.getProfile();
     document.getElementById("btn").disabled = false;
     document.getElementById("btn").textContent = "✅ เชื่อม LINE กับห้อง ${room}";
   } catch(e) {
@@ -141,7 +142,7 @@ async function init() {
 }
 
 async function doLink() {
-  if (!lineUserId || !ROOM) return;
+  if (!lineProfile || !ROOM) return;
   const btn = document.getElementById("btn");
   const status = document.getElementById("status");
   btn.disabled = true;
@@ -150,7 +151,13 @@ async function doLink() {
     const res = await fetch(WORKER + "/link", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ room: ROOM, userId: lineUserId })
+      body: JSON.stringify({
+        room: ROOM,
+        userId: lineProfile.userId,
+        displayName: lineProfile.displayName,
+        pictureUrl: lineProfile.pictureUrl || "",
+        statusMessage: lineProfile.statusMessage || ""
+      })
     });
     const d = await res.json();
     if (d.ok) {
@@ -174,30 +181,36 @@ init();
   });
 }
 
-/* ─── /link: Firebase units/{room} 에 lineId + lineLinked 저장 ─── */
+/* ─── /link: Firebase seri47/state/rooms/{room} 에 LINE 프로필 전체 저장 ─── */
 async function handleLink(request, env) {
   let body;
   try { body = await request.json(); } catch {
     return jsonResp({ ok: false, error: "Invalid JSON" }, 400);
   }
 
-  const { room, userId } = body;
+  const { room, userId, displayName, pictureUrl, statusMessage } = body;
   if (!room || !userId) {
     return jsonResp({ ok: false, error: "room and userId required" }, 400);
   }
 
-  // v9 앱과 동일한 Firebase 경로: /units/{room}
-  const res = await fetch(`${env.FIREBASE_URL}/units/${room}.json`, {
+  // v9 앱이 읽는 경로: seri47/state/rooms/{room}
+  const res = await fetch(`${env.FIREBASE_URL}/seri47/state/rooms/${room}.json`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ lineId: userId, lineLinked: true }),
+    body: JSON.stringify({
+      lineId: userId,
+      lineLinked: true,
+      lineName: displayName || "",
+      linePic: pictureUrl || "",
+      lineStatus: statusMessage || "",
+    }),
   });
 
   if (!res.ok) {
     return jsonResp({ ok: false, error: await res.text() }, 500);
   }
 
-  // userId_map 에도 저장 (기존 방식과 호환)
+  // userId_map 에도 저장 (기존 문자 메시지 방식과 호환)
   await fetch(`${env.FIREBASE_URL}/seri47/userId_map/${userId}.json`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -207,7 +220,7 @@ async function handleLink(request, env) {
   // 환영 메시지
   await sendLine(
     userId,
-    `🐝 Seri 47 Residence\nห้อง ${room} เชื่อม LINE สำเร็จแล้ว!\n${room}호 연결 완료 ✅\n궁금한 점은 여기로 메시지 보내주세요.`,
+    `🐝 Seri 47 Residence\nสวัสดีคุณ ${displayName}!\nห้อง ${room} เชื่อม LINE สำเร็จแล้ว ✅\n궁금한 점은 여기로 메시지 보내주세요.`,
     env.LINE_TOKEN
   );
 
