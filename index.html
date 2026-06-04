@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seri 47 Residence — BeeHome v9</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --primary:#1a5fa8;--pl:#e8f2fc;--green:#1a7a3a;--green2:#2a9a50;--gl:#e8f8ee;
+  --gold:#b07820;--gold2:#d49030;--goldl:#fdf4e0;
+  --red:#c0321a;--redl:#fdf0ee;
+  --orange:#c85a10;--ol:#fff0e4;
+  --black-list:#1a1a2e;--bll:#e8e8ee;--bl-border:#888;
+  --dark:#1a1a2a;--bg:#f4f7fc;--surface:#fff;--border:#dde3ee;
+  --muted:#7080a0;--text:#1e2535;--line:#06C755;
+  --secure:#6a1fa8;--securel:#f3eafd;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;max-width:480px;margin:0 auto;min-height:100vh}
+.login{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:30px 22px;background:linear-gradient(160deg,#0a2240,#1565b8)}
+.login-logo{font-size:50px}.login-title{font-size:24px;font-weight:700;color:#fff}
+.login-sub{font-size:12px;color:rgba(255,255,255,.7);margin-bottom:26px;text-align:center;line-height:1.7}
+.role-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%;max-width:340px}
+.role-btn{padding:16px 8px;border-radius:14px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;text-align:center;transition:.2s}
+.role-btn:hover{background:var(--gold2)}
+.role-ic{font-size:26px}.role-th{font-size:12px;font-weight:700;margin-top:4px}.role-en{font-size:9px;opacity:.7}
+.login-note{font-size:10px;color:rgba(255,255,255,.5);margin-top:18px}
+.login-ver{font-size:11px;color:rgba(255,255,255,.4);margin-top:8px}
+.topbar{background:var(--dark);padding:10px 14px;display:none;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:150}
+.topbar.show{display:flex}
+.topbar-badge{font-size:10px;color:var(--gold2);font-weight:700;background:rgba(210,144,48,.15);border:1px solid rgba(210,144,48,.3);border-radius:8px;padding:2px 7px}
+.topbar-title{font-size:13px;color:#fff;font-weight:600;margin-left:8px}
+.topbar-logout{font-size:10px;color:var(--muted);cursor:pointer;padding:4px 8px;border:1px solid #333;border-radius:6px}
+.screen{display:none;padding:14px 12px 96px}.screen.active{display:block}
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--surface);border-top:2px solid var(--border);display:none;z-index:140}
+.bnav.show{display:flex}
+.bnav-btn{flex:1;padding:8px 2px;text-align:center;cursor:pointer;border:none;background:transparent;font-family:inherit}
+.bnav-ic{font-size:18px}.bnav-l{font-size:8px;color:var(--muted);display:block;font-weight:700;margin-top:1px}
+.bnav-btn.active .bnav-l{color:var(--primary)}.bnav-btn.active{border-top:2px solid var(--primary);margin-top:-2px}
+.pane{display:none}.pane.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.card-sub{font-size:10px;color:var(--muted);margin-bottom:12px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.stat-grid.g3{grid-template-columns:1fr 1fr 1fr}.stat-grid.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 10px}
+.stat-card.c{text-align:center}
+.stat-val{font-size:22px;font-weight:700}.stat-lab{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.3}
+.rate-row{display:flex;gap:7px;margin-bottom:8px}
+.rate-pill{flex:1;background:var(--pl);border:1.5px solid #c0d8f0;border-radius:10px;padding:7px 8px;font-size:10px;display:flex;align-items:center;gap:4px;color:var(--primary);font-weight:700}
+.rate-pill input{width:40px;padding:3px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;text-align:center}
+.btn{display:block;width:100%;padding:12px;border:none;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;text-align:center;transition:.15s}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#fff}.btn-green{background:var(--green);color:#fff}
+.btn-line{background:var(--line);color:#fff}.btn-orange{background:var(--orange);color:#fff}
+.btn-secure{background:var(--secure);color:#fff}
+.btn-outline{background:transparent;color:var(--primary);border:1.5px solid var(--primary)}
+.btn-row{display:flex;gap:8px}.btn-row .btn{margin-bottom:0}
+.btn-sm{padding:6px 10px;font-size:11px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;font-weight:700;width:auto;display:inline-block}
+.btn-sm-out{background:transparent;color:var(--primary);border:1.5px solid var(--primary)}
+.ring-wrap{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.ring{position:relative;width:54px;height:54px;flex-shrink:0}.ring svg{transform:rotate(-90deg)}
+.ring-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--primary)}
+.ring-txt small{font-size:8px;color:var(--muted);font-weight:400}
+.read-status{font-size:11px;color:var(--muted);min-height:15px;margin-top:6px;line-height:1.5}
+.read-status.live{color:var(--green);font-weight:700}.read-status.demo{color:var(--gold);font-weight:700}
+.read-last{background:var(--gl);border:1px solid #b6e0c4;border-radius:9px;padding:8px 11px;font-size:11px;margin-top:8px;display:none}
+.unit-sel{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;margin-bottom:8px;color:var(--text)}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.thumb{width:46px;height:46px;border-radius:8px;object-fit:cover;border:1.5px solid var(--border)}
+.floor-sel{display:flex;gap:6px;margin:10px 0;overflow-x:auto}
+.floor-btn{padding:6px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--muted);white-space:nowrap;font-family:inherit}
+.floor-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{text-align:left;color:var(--muted);font-weight:700;font-size:9px;padding:6px 4px;border-bottom:2px solid var(--border)}
+.tbl td{padding:8px 4px;border-bottom:1px solid var(--border);vertical-align:top}
+.tbl tr:last-child td{border:none}.tbl .rm{font-weight:700}.tbl .nm{font-size:9px;color:var(--muted)}
+.cell-in{width:50px;padding:5px;border:1.5px solid var(--border);border-radius:7px;font-size:11px;font-family:inherit;text-align:right}
+.cell-in.filled{border-color:var(--green2);background:var(--gl)}
+.tot{font-weight:700;color:var(--primary);text-align:right;white-space:nowrap}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;font-weight:700}
+.b-paid{background:var(--gl);color:var(--green)}.b-pending{background:var(--goldl);color:var(--gold)}
+.b-vacant{background:#f0f0f8;color:#5050a0}.b-ready{background:var(--pl);color:var(--primary)}
+.b-overdue{background:var(--redl);color:var(--red)}.b-open{background:var(--ol);color:var(--orange)}
+.b-blacklist{background:var(--bll);color:var(--black-list);border:1px solid var(--bl-border)}
+.b-secure{background:var(--securel);color:var(--secure)}
+.link{color:var(--primary);font-size:10px;cursor:pointer;font-weight:700;text-decoration:underline}
+.sum-bar{position:sticky;bottom:64px;background:var(--surface);border-top:2px solid var(--border);margin:0 -12px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;z-index:120}
+.sum-bar .big{font-size:17px;font-weight:700;color:var(--primary)}.sum-bar .lab{font-size:9px;color:var(--muted)}
+.room-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.room-cell{border-radius:8px;padding:7px 3px;text-align:center;cursor:pointer;border:1.5px solid var(--border);background:var(--surface)}
+.room-cell.occ{background:var(--pl);border-color:#90b8e0}
+.room-cell.od{background:var(--redl);border-color:#d08080}
+.room-cell.vac{background:#f8f8fc;opacity:.7;cursor:pointer}
+.room-cell.bl{background:var(--bll);border-color:var(--bl-border)}
+.room-n{font-size:12px;font-weight:700}.room-dot{width:6px;height:6px;border-radius:50%;margin:3px auto 0}
+.occ .room-dot{background:var(--primary)}.od .room-dot{background:var(--red)}
+.vac .room-dot{background:#c0c0d8}.bl .room-dot{background:var(--orange)}
+.room-map-legend{display:flex;gap:12px;margin-top:10px;font-size:9px;color:var(--muted);flex-wrap:wrap}
+.li{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--border)}.li:last-child{border:none}
+.li-ic{font-size:18px}.li-info{flex:1}.li-t{font-size:13px;font-weight:600}.li-s{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4}
+.bar{height:9px;background:var(--border);border-radius:5px;overflow:hidden;margin:6px 0}
+.bar-fill{height:100%;background:var(--green2);border-radius:5px}
+.form-input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;margin-bottom:8px;color:var(--text)}
+textarea.form-input{min-height:70px;resize:vertical}
+.field-label{font-size:10px;color:var(--muted);margin-bottom:3px;margin-top:8px;font-weight:700}
+.field-label:first-child{margin-top:0}
+.field-label.secure{color:var(--secure)}
+.save-banner{background:var(--gl);border:1px solid #b6e0c4;border-radius:9px;padding:8px 12px;font-size:11px;color:var(--green);font-weight:700;text-align:center;margin-top:8px;display:none}
+.notice-card{border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:9px;padding:10px 12px;margin-bottom:8px;background:var(--surface)}
+.notice-card.livin{border-left-color:var(--orange)}
+.nc-top{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-bottom:4px}
+.nc-from{font-weight:700}.nc-body{font-size:11px;line-height:1.5}
+.inv-table{width:100%;border-collapse:collapse;margin-bottom:12px}
+.inv-table td{padding:9px 4px;font-size:12px;border-bottom:1px solid var(--border)}
+.inv-table tr:last-child td{border:none;font-weight:700;font-size:15px;color:var(--primary);padding-top:11px}
+.inv-table td:last-child{text-align:right;white-space:nowrap}.inv-table .en{font-size:9px;color:var(--muted)}
+.qr-amount{text-align:center;font-size:28px;font-weight:700;color:var(--primary)}
+.qr-cap{text-align:center;font-size:10px;color:var(--muted);margin-bottom:10px}
+.qr-center{text-align:center;margin-bottom:8px}.qr-box{display:inline-block;background:#fff;border:2px solid var(--border);border-radius:14px;padding:12px}
+.qr-pp{text-align:center;font-size:10px;color:var(--muted);margin-bottom:12px}.qr-pp b{color:#003d6b}
+.line-preview{background:var(--line);border-radius:12px;padding:12px;margin-bottom:10px;color:#fff}
+.line-header{font-size:12px;font-weight:700;margin-bottom:8px}
+.line-body{background:rgba(255,255,255,.16);border-radius:8px;padding:10px;font-size:11px;line-height:1.85;white-space:pre-line}
+.cam-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:400;align-items:flex-end;justify-content:center}
+.cam-overlay.open{display:flex}
+.cam-sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px 18px 34px}
+.cam-title{font-size:15px;font-weight:700;margin-bottom:4px;text-align:center}
+.cam-sub{font-size:10px;color:var(--muted);text-align:center;margin-bottom:18px}
+.cam-opts{display:flex;flex-direction:column;gap:10px}
+.cam-opt{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;border:1.5px solid var(--border);cursor:pointer;background:var(--surface);font-family:inherit;font-size:14px;font-weight:700;color:var(--text);transition:.15s}
+.cam-opt:hover{background:var(--pl);border-color:var(--primary)}
+.cam-opt-ic{font-size:28px}.cam-opt-desc{font-size:10px;color:var(--muted);font-weight:400;margin-top:2px}
+.cam-cancel{margin-top:12px;width:100%;padding:12px;border:none;border-radius:11px;background:var(--border);color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.ctab-row{display:flex;gap:0;margin-bottom:12px;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;flex-wrap:wrap}
+.ctab-btn{flex:1;padding:9px 4px;border:none;background:var(--surface);font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;color:var(--muted);border-right:1px solid var(--border);min-width:52px}
+.ctab-btn:last-child{border-right:none}
+.ctab-btn.active{background:var(--primary);color:#fff}
+.ctab-pane{display:none}.ctab-pane.active{display:block}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;align-items:flex-end;justify-content:center}.overlay.open{display:flex}
+.sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:18px 18px 30px;max-height:92vh;overflow-y:auto;animation:su .25s}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sh-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px}
+.sh-title{font-size:16px;font-weight:700;margin-bottom:3px}.sh-sub{font-size:10px;color:var(--muted);margin-bottom:14px}
+.sending{text-align:center;padding:10px 0}.send-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin:10px 0}.send-fill{height:100%;width:0;background:var(--line);transition:width .12s}
+.search-bar{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;margin-bottom:10px;color:var(--text);background:#fff}
+.secure-field{background:var(--securel);border:1.5px solid #c0a0e0;border-radius:10px;padding:10px 12px;margin-bottom:8px;position:relative}
+.secure-icon{font-size:10px;color:var(--secure);font-weight:700;margin-bottom:4px}
+.secure-value{font-size:14px;font-weight:700;color:var(--secure);letter-spacing:1px}
+.secure-reveal-btn{font-size:9px;color:var(--secure);cursor:pointer;text-decoration:underline;font-weight:700}
+.sig-canvas-wrap{border:2px dashed var(--border);border-radius:10px;margin:8px 0;background:#f8f9fc;text-align:center;padding:4px}
+.sig-canvas-wrap canvas{display:block;margin:0 auto;touch-action:none;cursor:crosshair}
+.sig-hint{font-size:9px;color:var(--muted);margin-top:4px}
+.tm30-card{background:linear-gradient(135deg,#e8f2fc,#f4f7fc);border:1.5px solid #90b8e0;border-radius:12px;padding:14px;margin-bottom:10px}
+.tm30-title{font-size:13px;font-weight:700;color:var(--primary);margin-bottom:4px}
+.tm30-sub{font-size:10px;color:var(--muted);margin-bottom:10px;line-height:1.5}
+.tm30-link{display:block;text-align:center;padding:12px;background:var(--primary);color:#fff;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;margin-bottom:8px}
+.lineqr-card{background:var(--line);border-radius:14px;padding:14px;color:#fff;margin-bottom:10px}
+.lineqr-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.lineqr-sub{font-size:10px;opacity:.85;margin-bottom:12px;line-height:1.5}
+.lineqr-box{background:#fff;border-radius:10px;padding:10px;text-align:center;margin-bottom:8px}
+#toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:#1a1a2a;color:#fff;padding:11px 22px;border-radius:22px;font-size:12px;font-weight:600;display:none;z-index:9999;max-width:90vw;text-align:center}
+#fb-status{position:fixed;bottom:4px;left:4px;font-size:9px;color:#7080a0;z-index:9999;background:rgba(255,255,255,.7);padding:1px 5px;border-radius:6px}
+#pw-ov{display:none;position:fixed;inset:0;background:rgba(10,34,64,.92);z-index:10000;align-items:center;justify-content:center;flex-direction:column;padding:24px}
+</style>
+</head>
+<body>
+
+<div id="login" class="login">
+  <div class="login-logo">🏢</div>
+  <div class="login-title">Seri 47 Residence</div>
+  <div class="login-sub">ระบบจัดการอัจฉริยะ / Smart Management<br><small style="opacity:.6">Powered by 🐝 BeeHome</small></div>
+  <div class="role-grid">
+    <div class="role-btn" onclick="login('mg')"><div class="role-ic">🔑</div><div class="role-th">ผู้จัดการ</div><div class="role-en">Manager</div></div>
+    <div class="role-btn" onclick="login('own')"><div class="role-ic">👑</div><div class="role-th">เจ้าของ</div><div class="role-en">Owner</div></div>
+    <div class="role-btn" onclick="login('tn')"><div class="role-ic">🏠</div><div class="role-th">ผู้พัก</div><div class="role-en">Tenant</div></div>
+  </div>
+  <div class="login-note">เดโม: แตะบทบาทเพื่อเข้าระบบ / Demo — tap a role to enter</div>
+  <div class="login-ver">v9 · 🔐 Secure · 📄 E-Contract · 🛂 TM30 · 🔗 LINE Auto</div>
+</div>
+
+<div id="topbar" class="topbar">
+  <div style="display:flex;align-items:center">
+    <span class="topbar-badge" id="tb-badge">-</span>
+    <span class="topbar-title">Seri 47 Residence</span>
+  </div>
+  <span class="topbar-logout" onclick="logout()">ออก / Logout</span>
+</div>
+
+<div id="sc-mg" class="screen">
+  <div class="pane active" id="mg-home">
+    <div class="stat-grid g4">
+      <div class="stat-card c"><div class="stat-val" style="color:var(--primary)" id="h-occ">0</div><div class="stat-lab">มีผู้พัก<br>Occupied</div></div>
+      <div class="stat-card c"><div class="stat-val" style="color:var(--green)" id="h-paid">0</div><div class="stat-lab">ชำระแล้ว<br>Paid</div></div>
+      <div class="stat-card c"><div class="stat-val" style="color:var(--red)" id="h-od">0</div><div class="stat-lab">ค้างชำระ<br>Overdue</div></div>
+      <div class="stat-card c"><div class="stat-val" style="color:var(--orange)" id="h-bl">0</div><div class="stat-lab">Blacklist<br>บัญชีดำ</div></div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--red)">
+      <div class="card-title">⚠️ Livin — ความเสี่ยง / Risk</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6">Livin ค้างโอนค่าเช่าให้เจ้าของเกิน 30 วัน · เปลี่ยนมาเก็บตรงผ่าน PromptPay + BeeHome</div>
+    </div>
+    <div class="card"><div class="card-title">🔧 งานซ่อมค้าง / Open repairs <span class="badge b-open" id="h-rep">0</span></div><div id="h-rep-list"></div></div>
+  </div>
+
+  <div class="pane" id="mg-bill">
+    <div class="card">
+      <div class="card-title">⚡ ออกบิลอัจฉริยะ / Smart Billing</div>
+      <div class="card-sub">ถ่ายรูปมิเตอร์ → สร้างบิล → ส่ง LINE</div>
+      <div class="rate-row">
+        <div class="rate-pill">⚡ <input type="number" step="0.01" value="5.10" onchange="ELEC_RATE=+this.value||5.10;renderBill()"> ฿/u</div>
+        <div class="rate-pill">💧 <input type="number" step="0.01" value="15" onchange="WATER_RATE=+this.value||15;renderBill()"> ฿/u</div>
+        <div class="rate-pill">🏛️ <input type="number" value="0" onchange="SERVICE_FEE=+this.value||0;renderBill()"> ฿</div>
+      </div>
+      <div class="ring-wrap">
+        <div class="ring"><svg width="54" height="54"><circle cx="27" cy="27" r="22" stroke="#e8eef7" stroke-width="6" fill="none"/><circle id="ringfg" cx="27" cy="27" r="22" stroke="#1a5fa8" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="138.2"/></svg><div class="ring-txt"><span id="ringn">0</span><small id="ringd">/ 0</small></div></div>
+        <div style="flex:1;font-size:11px;color:var(--muted);line-height:1.5">แผงกว้าง → <b>ถ่ายหลายรูป</b> AI อ่านพร้อมกัน</div>
+      </div>
+
+      <button class="btn btn-primary" onclick="openCamModal('multi')">📷 ถ่ายมิเตอร์ทั้งแผง / Multi-photo · AI<br><span style="font-size:9px;opacity:.85">แตะเพื่อเลือกวิธีถ่าย</span></button>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="openCamModal('one')">📷 ทีละห้อง</button>
+        <button class="btn btn-outline" onclick="autoAll()">🧪 ทดสอบ (สุ่ม)</button>
+      </div>
+      <input type="file" id="fi-multi-photo" accept="image/*" capture="environment" multiple style="display:none" onchange="onMulti(event)">
+      <input type="file" id="fi-multi-gallery" accept="image/*" multiple style="display:none" onchange="onMulti(event)">
+      <input type="file" id="fi-one-photo" accept="image/*" capture="environment" style="display:none" onchange="onOne(event)">
+      <input type="file" id="fi-one-gallery" accept="image/*" style="display:none" onchange="onOne(event)">
+      <select class="unit-sel" id="read-unit"></select>
+      <div class="read-status" id="read-status">รอการตรวจมิเตอร์ / Awaiting…</div>
+      <div class="read-last" id="read-last"></div>
+      <div class="thumbs" id="thumbs"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 ตรวจสอบ & ส่ง</div>
+      <div class="floor-sel" id="bill-floor"></div>
+      <table class="tbl"><thead><tr><th>ห้อง</th><th>⚡</th><th>💧</th><th style="text-align:right">รวม</th><th></th></tr></thead><tbody id="bill-body"></tbody></table>
+      <div class="sum-bar"><div><div class="lab">ยอดรวม</div><div class="big" id="bill-grand">฿0</div></div><div style="text-align:right"><div class="lab">ตรวจแล้ว</div><div class="big" id="bill-cnt" style="color:var(--green)">0</div></div></div>
+      <button class="btn btn-line" style="margin-top:10px" onclick="bulkSend()">📨 ส่งบิล + PromptPay QR ทุกห้อง</button>
+    </div>
+  </div>
+
+  <div class="pane" id="mg-rooms">
+    <div class="card">
+      <div class="card-title">🗺️ ผังห้อง / Room map</div>
+      <div class="floor-sel" id="rooms-floor"></div>
+      <div class="room-grid" id="rooms-grid"></div>
+      <div class="room-map-legend"><span>🔵 มีผู้พัก</span><span>🔴 ค้าง</span><span>🟠 Blacklist</span><span>⚪ ว่าง</span></div>
+    </div>
+  </div>
+
+  <div class="pane" id="mg-cust">
+    <div class="card">
+      <div class="card-title">👤 ข้อมูลลูกค้า / Customer File</div>
+      <input class="search-bar" id="cust-search" placeholder="🔍 ค้นหาห้อง / ชื่อ / LINE ID" oninput="renderCustList()">
+      <div id="cust-list" style="max-height:220px;overflow-y:auto;margin-bottom:10px"></div>
+    </div>
+    <div id="cust-edit-card" style="display:none">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div class="card-title" id="cust-edit-title" style="margin-bottom:0">ห้อง —</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span id="vac-label" style="font-size:11px;color:var(--muted)">ว่าง</span>
+            <div id="vac-toggle" onclick="toggleVac()" style="width:46px;height:26px;border-radius:13px;background:#1a5fa8;position:relative;cursor:pointer;transition:.2s;flex-shrink:0">
+              <span id="vac-knob" style="position:absolute;top:3px;left:23px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s"></span>
+            </div>
+            <span style="font-size:11px;color:var(--muted)">Occupied</span>
+          </div>
+        </div>
+        <div class="ctab-row">
+          <button class="ctab-btn active" onclick="custTab('profile',this)">👤 ข้อมูล</button>
+          <button class="ctab-btn" onclick="custTab('passport',this)">🛂 หนังสือ</button>
+          <button class="ctab-btn" onclick="custTab('contract',this)">📄 สัญญา</button>
+          <button class="ctab-btn" onclick="custTab('tm30',this)">🏛️ TM30</button>
+          <button class="ctab-btn" onclick="custTab('lineqr',this)">🔗 LINE</button>
+          <button class="ctab-btn" onclick="custTab('cs',this)">💬 CS</button>
+          <button class="ctab-btn" onclick="custTab('aics',this)">🤖 AI</button>
+        </div>
+
+        <div class="ctab-pane active" id="ctab-profile">
+          <div class="field-label">ชื่อ / Name</div>
+          <input class="form-input" id="cf-name" placeholder="ชื่อผู้พัก">
+          <div class="field-label">สัญชาติ / Nationality</div>
+          <input class="form-input" id="cf-nationality" placeholder="e.g. Korean, Chinese, Thai">
+          <div class="field-label">เบอร์โทร / Phone</div>
+          <input class="form-input" id="cf-phone" type="tel" placeholder="08x-xxxxxxx">
+          <div class="field-label">LINE ID</div>
+          <input class="form-input" id="cf-line-id" placeholder="LINE ID">
+          <div style="padding:10px 0;border-top:1px solid var(--border);margin-top:6px">
+            <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px">สถานะชำระ / Payment Status</div>
+            <div style="display:flex;gap:6px">
+              <button id="ps-paid" onclick="setPayStatus('paid')" class="btn-sm" style="flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid var(--border);font-size:11px;font-weight:700;background:#f0f9f3;color:#1a8a3a">✅ Paid</button>
+              <button id="ps-overdue" onclick="setPayStatus('overdue')" class="btn-sm" style="flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid var(--border);font-size:11px;font-weight:700;background:#fff0ee;color:var(--red)">🔴 Overdue</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border);margin-top:6px">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--black-list)">🚫 Blacklist / บัญชีดำ</div>
+              <div style="font-size:10px;color:var(--muted)">ห้องนี้จะแสดงสีดำในแผนผัง</div>
+            </div>
+            <div id="bl-toggle" onclick="toggleBlacklist()" style="width:46px;height:26px;border-radius:13px;background:#ccc;position:relative;cursor:pointer;transition:.2s;flex-shrink:0">
+              <span id="bl-knob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s"></span>
+            </div>
+          </div>
+          <div class="field-label">หมายเหตุ / Memo</div>
+          <textarea class="form-input" id="cf-memo" placeholder="บันทึกเพิ่มเติม…" style="min-height:60px"></textarea>
+          <button class="btn btn-primary" onclick="saveCustProfile()">💾 บันทึก / Save</button>
+          <div class="save-banner" id="cf-banner">✅ บันทึกแล้ว</div>
+        </div>
+
+        <div class="ctab-pane" id="ctab-passport">
+          <div style="background:var(--securel);border:1.5px solid #c0a0e0;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.6;color:var(--secure)">
+            🔐 <b>ข้อมูลหนังสือเดินทาง</b> — เข้ารหัส AES-256<br>
+            <span style="color:var(--muted)">ข้อมูลถูกเข้ารหัส ไม่มีใครดูได้โดยไม่ได้รับอนุญาต</span>
+          </div>
+          <div class="field-label secure">🛂 หมายเลขหนังสือเดินทาง / Passport No.</div>
+          <div id="pp-num-display" class="secure-field" style="display:none">
+            <div class="secure-icon">🔐 Encrypted</div>
+            <div class="secure-value" id="pp-num-masked">—</div>
+            <span class="secure-reveal-btn" id="pp-reveal-btn" onclick="revealPassport()" style="display:none">👁 ดูข้อมูล (Owner only)</span>
+          </div>
+          <input class="form-input" id="cf-passport-num" placeholder="e.g. AA1234567" style="display:none">
+          <button class="btn btn-sm btn-sm-out" style="margin-bottom:10px" onclick="togglePassportInput()" id="pp-edit-btn">✏️ แก้ไข / Edit</button>
+          <div class="field-label secure">📅 วันหมดอายุ / Expiry</div>
+          <input class="form-input" id="cf-passport-exp" type="date">
+          <div class="field-label secure">📸 ภาพหนังสือเดินทาง / Passport Scan</div>
+          <div id="pp-scan-preview" style="display:none;margin-bottom:8px">
+            <div class="secure-field">
+              <div class="secure-icon">🔐 Encrypted Image</div>
+              <img id="pp-scan-img" style="width:100%;border-radius:8px;max-height:140px;object-fit:contain;filter:blur(8px)" src="">
+              <span class="secure-reveal-btn" onclick="revealPassportScan()" id="pp-scan-reveal" style="display:none">👁 ดูรูป (Owner only)</span>
+            </div>
+          </div>
+          <input type="file" id="cf-passport-scan" accept="image/*" capture="environment" style="display:none" onchange="onPassportScan(event)">
+          <button class="btn btn-outline" onclick="document.getElementById('cf-passport-scan').click()">📷 ถ่าย/เลือกรูป Passport</button>
+          <div class="field-label">วันที่เข้าพัก / Check-in</div>
+          <input class="form-input" id="cf-checkin" type="date">
+          <div class="field-label">วันที่ออก / Check-out</div>
+          <input class="form-input" id="cf-checkout" type="date">
+          <div class="field-label">ประเภทวีซ่า / Visa Type</div>
+          <input class="form-input" id="cf-visa" placeholder="Tourist / Non-B / OA…">
+          <button class="btn btn-secure" onclick="savePassportData()">🔐 บันทึกแบบเข้ารหัส / Save Encrypted</button>
+          <div class="save-banner" id="cf-pp-banner">🔐 บันทึกเข้ารหัสแล้ว</div>
+        </div>
+
+        <div class="ctab-pane" id="ctab-contract">
+          <div style="background:var(--pl);border:1.5px solid #c0d8f0;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.6;color:var(--primary)">
+            📄 <b>สัญญาเช่า Seri 47</b> — ข้อมูลจากโปรไฟล์เติมอัตโนมัติ
+          </div>
+          <div class="field-label">ค่าเช่า / Rent (฿/เดือน)</div>
+          <input class="form-input" id="ct-rent" type="number" placeholder="3800">
+          <div class="field-label">เงินประกัน / Deposit (฿)</div>
+          <input class="form-input" id="ct-deposit" type="number" placeholder="7600">
+          <div class="field-label">ระยะเวลา / Term (เดือน)</div>
+          <input class="form-input" id="ct-term" type="number" value="12">
+          <div class="field-label">วันเริ่ม / Start Date</div>
+          <input class="form-input" id="ct-start" type="date">
+          <div class="field-label">ผู้พักร่วม 1 (optional)</div>
+          <input class="form-input" id="ct-co1" placeholder="ชื่อ — อายุ — สัญชาติ">
+          <div class="field-label">ผู้พักร่วม 2 (optional)</div>
+          <input class="form-input" id="ct-co2" placeholder="ชื่อ — อายุ — สัญชาติ">
+          <div class="field-label">ลายเซ็นผู้เช่า / Tenant Signature</div>
+          <div class="sig-canvas-wrap">
+            <canvas id="sig-tenant" width="380" height="100"></canvas>
+            <div class="sig-hint">ลากนิ้วเพื่อเซ็น · <span style="color:var(--primary);cursor:pointer" onclick="clearSig('tenant')">ล้าง</span></div>
+          </div>
+          <div class="field-label">ลายเซ็นผู้ให้เช่า / Lessor Signature</div>
+          <div class="sig-canvas-wrap">
+            <canvas id="sig-lessor" width="380" height="100"></canvas>
+            <div class="sig-hint">ลากนิ้วเพื่อเซ็น · <span style="color:var(--primary);cursor:pointer" onclick="clearSig('lessor')">ล้าง</span></div>
+          </div>
+          <div class="btn-row" style="margin-top:4px">
+            <button class="btn btn-outline" onclick="previewContract()">👁 Preview</button>
+            <button class="btn btn-primary" onclick="saveContract()">📄 Save</button>
+          </div>
+          <div class="save-banner" id="cf-ct-banner">📄 บันทึกสัญญาแล้ว</div>
+          <div id="ct-saved-wrap" style="display:none;margin-top:10px">
+            <div class="field-label">สัญญาที่บันทึกแล้ว</div>
+            <div id="ct-saved-info" style="background:#f8f9fc;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:11px;line-height:1.6"></div>
+          </div>
+        </div>
+
+        <div class="ctab-pane" id="ctab-tm30">
+          <div class="tm30-card">
+            <div class="tm30-title">🏛️ TM30 — แจ้งที่พักคนต่างด้าว</div>
+            <div class="tm30-sub">กฎหมายไทย: ต้องแจ้งภายใน 24 ชม. หลังคนต่างด้าวเข้าพัก</div>
+            <div id="tm30-autofill" style="background:rgba(255,255,255,.15);border-radius:8px;padding:10px;font-size:11px;line-height:1.7;margin-bottom:10px">กรุณากรอกข้อมูลหนังสือเดินทางก่อน</div>
+            <a class="tm30-link" href="https://extranet.immigration.go.th/fn24online/" target="_blank" rel="noopener">🌐 เปิดระบบ TM30 ออนไลน์</a>
+          </div>
+          <div class="field-label">วันที่แจ้ง / Reported Date</div>
+          <input class="form-input" id="tm30-date" type="date">
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 0">
+            <input type="checkbox" id="tm30-done" style="width:18px;height:18px;cursor:pointer">
+            <label for="tm30-done" style="font-size:13px;font-weight:700;cursor:pointer">✅ แจ้งแล้ว / Reported</label>
+          </div>
+          <button class="btn btn-primary" onclick="saveTM30()">💾 บันทึก TM30</button>
+          <div class="save-banner" id="cf-tm30-banner">✅ บันทึก TM30 แล้ว</div>
+        </div>
+
+        <div class="ctab-pane" id="ctab-lineqr">
+          <div class="lineqr-card">
+            <div class="lineqr-title">🔗 LINE QR Auto-Link</div>
+            <div class="lineqr-sub">QR ติดหน้าประตูห้อง → ผู้พักสแกน → เชื่อม LINE อัตโนมัติ</div>
+            <div class="lineqr-box" id="lineqr-box"><div style="font-size:12px;color:var(--muted)">กด "สร้าง QR" เพื่อสร้าง</div></div>
+          </div>
+          <div id="lineqr-status" style="font-size:11px;color:var(--muted);margin-bottom:8px">—</div>
+          <div id="line-profile-card" style="display:none;background:#f0f9f3;border:1.5px solid #06C755;border-radius:12px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px">
+            <img id="line-pic" src="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;display:none">
+            <div>
+              <div id="line-name" style="font-size:13px;font-weight:700;color:#1e2535"></div>
+              <div id="line-uid" style="font-size:9px;color:var(--muted);margin-top:2px"></div>
+            </div>
+          </div>
+          <button class="btn btn-line" onclick="generateLineQR()">🔗 สร้าง QR / Generate</button>
+          <button class="btn btn-outline" onclick="printLineQR()">🖨️ พิมพ์ QR / Print</button>
+        </div>
+
+        <div class="ctab-pane" id="ctab-cs">
+          <div class="field-label">วางข้อความ LINE / Paste LINE messages</div>
+          <textarea class="form-input" id="cf-line-msg" placeholder="คัดลอกข้อความจาก LINE แล้ววางที่นี่…" style="min-height:140px"></textarea>
+          <div class="field-label">บันทึก CS / CS notes</div>
+          <textarea class="form-input" id="cf-cs-note" placeholder="บันทึกการสนทนา ปัญหา การแก้ไข…" style="min-height:70px"></textarea>
+          <button class="btn btn-green" onclick="saveCustCS()">💾 บันทึก CS</button>
+          <div class="save-banner" id="cf-cs-banner">✅ บันทึก CS แล้ว</div>
+          <div id="cf-cs-hist-wrap" style="display:none">
+            <div class="field-label">ประวัติ CS / History</div>
+            <div id="cf-cs-hist" style="font-size:10px;color:var(--muted);line-height:1.6;background:#f8f9fc;border-radius:8px;padding:8px;max-height:160px;overflow-y:auto"></div>
+          </div>
+        </div>
+
+        <div class="ctab-pane" id="ctab-aics">
+          <div style="background:var(--pl);border:1.5px solid #c0d8f0;border-radius:10px;padding:11px 13px;margin-bottom:10px;font-size:11px;line-height:1.6;color:var(--primary)">
+            🤖 <b>AI CS</b> — Claude วิเคราะห์และร่างคำตอบ
+          </div>
+          <select class="form-input" id="aics-type">
+            <option value="reply">💬 ร่างคำตอบ</option>
+            <option value="summary">📋 สรุปบทสนทนา</option>
+            <option value="complaint">⚠️ วิเคราะห์ข้อร้องเรียน</option>
+            <option value="payment">💳 แจ้งค้างชำระ</option>
+            <option value="repair">🔧 แจ้งซ่อม</option>
+            <option value="eviction">🚫 เตือนขับออก</option>
+          </select>
+          <textarea class="form-input" id="aics-extra" placeholder="คำสั่งเพิ่มเติม เช่น: สุภาพ ภาษาไทย สั้น…" style="min-height:50px"></textarea>
+          <button class="btn btn-primary" onclick="runAICS()">🤖 วิเคราะห์ AI</button>
+          <div id="aics-loading" style="display:none;text-align:center;padding:14px;color:var(--muted);font-size:12px">⏳ Claude กำลังวิเคราะห์…</div>
+          <div id="aics-result-wrap" style="display:none">
+            <div class="field-label">ผล AI</div>
+            <div id="aics-result" style="background:#f8f9fc;border:1.5px solid var(--border);border-radius:10px;padding:12px;font-size:12px;line-height:1.7;white-space:pre-line;min-height:80px"></div>
+            <div class="btn-row" style="margin-top:8px">
+              <button class="btn btn-outline" onclick="copyAIResult()">📋 คัดลอก</button>
+              <button class="btn btn-line" onclick="saveAIResult()">💾 บันทึก CS</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pane" id="mg-rep">
+    <div class="card"><div class="card-title">🔧 แจ้งซ่อม / Repair requests</div><div id="rep-list"></div></div>
+  </div>
+
+  <div class="pane" id="mg-notice">
+    <div class="card">
+      <div class="card-title">📢 ส่งประกาศ / Broadcast</div>
+      <textarea class="form-input" id="notice-text" placeholder="พิมพ์ข้อความ…"></textarea>
+      <button class="btn btn-line" onclick="sendNotice()">📨 ส่งถึง <span id="notice-n">94</span> ห้อง</button>
+    </div>
+    <div class="card"><div class="card-title">🕓 ประวัติ</div><div id="notice-hist"></div></div>
+  </div>
+
+  <div class="bnav" id="nav-mg">
+    <button class="bnav-btn active" onclick="tab('mg','home',this)"><div class="bnav-ic">🏠</div><span class="bnav-l">หน้าหลัก</span></button>
+    <button class="bnav-btn" onclick="tab('mg','bill',this)"><div class="bnav-ic">🧾</div><span class="bnav-l">บิล</span></button>
+    <button class="bnav-btn" onclick="tab('mg','rooms',this)"><div class="bnav-ic">🗺️</div><span class="bnav-l">ห้อง</span></button>
+    <button class="bnav-btn" onclick="tab('mg','cust',this)"><div class="bnav-ic">👤</div><span class="bnav-l">ลูกค้า</span></button>
+    <button class="bnav-btn" onclick="tab('mg','rep',this)"><div class="bnav-ic">🔧</div><span class="bnav-l">ซ่อม</span></button>
+    <button class="bnav-btn" onclick="tab('mg','notice',this)"><div class="bnav-ic">📢</div><span class="bnav-l">แจ้ง</span></button>
+  </div>
+</div>
+
+<div id="sc-own" class="screen">
+  <div class="pane active" id="own-collect">
+    <div class="card" style="border-left:3px solid var(--green)">
+      <div class="card-title">💰 การเก็บเงิน / Live collection</div>
+      <div class="stat-grid g3">
+        <div class="stat-card c"><div class="stat-val" style="color:var(--primary)" id="o-billed">฿0</div><div class="stat-lab">ออกบิล</div></div>
+        <div class="stat-card c"><div class="stat-val" style="color:var(--green)" id="o-recv">฿0</div><div class="stat-lab">รับแล้ว</div></div>
+        <div class="stat-card c"><div class="stat-val" style="color:var(--red)" id="o-out">฿0</div><div class="stat-lab">ค้าง</div></div>
+      </div>
+      <div class="bar"><div class="bar-fill" id="o-bar" style="width:0%"></div></div>
+      <div style="font-size:10px;color:var(--muted);text-align:right" id="o-pct">0%</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--primary)">
+      <div class="card-title">💳 ยืนยันการชำระจาก SMS</div>
+      <textarea class="form-input" id="sms-in" placeholder="วาง SMS ธนาคาร…" style="min-height:70px"></textarea>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" style="flex:1" onclick="smsSample()">📋 ตัวอย่าง</button>
+        <button class="btn btn-primary" style="flex:2" onclick="parseSMS()">🔎 จับคู่</button>
+      </div>
+      <div class="read-status" id="sms-res" style="margin-top:8px;display:none"></div>
+    </div>
+    <div class="card"><div class="card-title">🔴 ค้างชำระ</div><div id="o-odlist"></div></div>
+  </div>
+  <div class="pane" id="own-report">
+    <div class="card"><div class="card-title">📋 สรุปรายเดือน</div>
+      <div class="li"><span class="li-ic">📅</span><div class="li-info"><div class="li-t">มิถุนายน 2026</div><div class="li-s" id="r-jun">—</div></div></div>
+      <div class="li"><span class="li-ic">📅</span><div class="li-info"><div class="li-t">พฤษภาคม 2026</div><div class="li-s">ออกบิล ฿428,400 · รับ ฿410,200</div></div></div>
+      <div class="li"><span class="li-ic">📈</span><div class="li-info"><div class="li-t">อัตราเก็บได้</div><div class="li-s" id="r-rate">—</div></div></div>
+    </div>
+    <div class="card" style="background:var(--gl);border-color:#b6e0c4"><div style="font-size:11px;color:var(--green);line-height:1.6">✅ ประหยัด Livin 20% ≈ <b id="r-save">฿0</b>/เดือน</div></div>
+  </div>
+  <div class="bnav" id="nav-own">
+    <button class="bnav-btn active" onclick="tab('own','collect',this)"><div class="bnav-ic">📊</div><span class="bnav-l">รายรับ</span></button>
+    <button class="bnav-btn" onclick="tab('own','report',this)"><div class="bnav-ic">📋</div><span class="bnav-l">รายงาน</span></button>
+  </div>
+</div>
+
+<div id="sc-tn" class="screen">
+  <div class="pane active" id="tn-bill"><div class="card"><div class="card-title">🧾 บิลของฉัน</div><div class="card-sub" id="tn-room">—</div><table class="inv-table" id="tn-calc"></table></div></div>
+  <div class="pane" id="tn-pay"><div class="card"><div class="card-title">💳 ชำระเงิน / Pay</div>
+    <div class="qr-amount" id="tn-amt">฿0</div><div class="qr-cap">สแกน PromptPay</div>
+    <div class="qr-center"><div class="qr-box" id="tn-qr"></div></div>
+    <div class="qr-pp">🔵 PromptPay · <b id="tn-pp"></b> · Ref: <b id="tn-ref"></b></div>
+    <button class="btn btn-green" onclick="toast('ขอบคุณค่ะ ✅')">✅ ฉันชำระแล้ว</button>
+  </div></div>
+  <div class="pane" id="tn-rep"><div class="card"><div class="card-title">🔧 แจ้งซ่อม</div>
+    <select class="form-input" id="tn-rep-type"><option>🚰 น้ำ/ประปา</option><option>⚡ ไฟฟ้า</option><option>❄️ แอร์</option><option>🚪 ประตู/กุญแจ</option><option>อื่นๆ</option></select>
+    <textarea class="form-input" id="tn-rep-text" placeholder="อธิบายปัญหา…"></textarea>
+    <button class="btn btn-primary" onclick="submitRepair()">📨 ส่งคำขอ</button>
+  </div></div>
+  <div class="pane" id="tn-notice"><div class="card"><div class="card-title">📢 ประกาศ</div><div id="tn-notice-list"></div></div></div>
+  <div class="bnav" id="nav-tn">
+    <button class="bnav-btn active" onclick="tab('tn','bill',this)"><div class="bnav-ic">🧾</div><span class="bnav-l">บิล</span></button>
+    <button class="bnav-btn" onclick="tab('tn','pay',this)"><div class="bnav-ic">💳</div><span class="bnav-l">ชำระ</span></button>
+    <button class="bnav-btn" onclick="tab('tn','rep',this)"><div class="bnav-ic">🔧</div><span class="bnav-l">ซ่อม</span></button>
+    <button class="bnav-btn" onclick="tab('tn','notice',this)"><div class="bnav-ic">📢</div><span class="bnav-l">ประกาศ</span></button>
+  </div>
+</div>
+
+<div class="cam-overlay" id="cam-overlay">
+  <div class="cam-sheet">
+    <div class="cam-title">📷 เลือกวิธีถ่าย</div>
+    <div class="cam-sub" id="cam-sub">เลือกวิธีที่ต้องการ</div>
+    <div class="cam-opts">
+      <button class="cam-opt" onclick="camChoose('photo')"><span class="cam-opt-ic">📸</span><div><div>ถ่ายรูป / Photo</div><div class="cam-opt-desc">เปิดกล้องถ่ายภาพนิ่ง</div></div></button>
+      <button class="cam-opt" onclick="camChoose('gallery')"><span class="cam-opt-ic">🖼️</span><div><div>เลือกจากคลัง / Gallery</div><div class="cam-opt-desc">เลือกรูปที่มีอยู่</div></div></button>
+    </div>
+    <button class="cam-cancel" onclick="closeCamModal()">ยกเลิก / Cancel</button>
+  </div>
+</div>
+
+<div class="overlay" id="ov" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet" id="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-title" id="sh-room">Room</div><div class="sh-sub" id="sh-sub"></div>
+    <table class="inv-table" id="sh-calc"></table>
+    <div class="qr-amount" id="sh-amt">฿0</div><div class="qr-cap">สแกน PromptPay</div>
+    <div class="qr-center"><div class="qr-box" id="sh-qr"></div></div>
+    <div class="qr-pp">🔵 PromptPay · <b id="sh-pp"></b> · Ref: <b id="sh-ref"></b></div>
+    <div class="line-preview"><div class="line-header">💬 LINE</div><div class="line-body" id="sh-line"></div></div>
+    <button class="btn btn-line" onclick="closeSheet();toast('ส่งแล้ว ✅')">📨 ส่งห้องนี้</button>
+    <button class="btn btn-outline" onclick="closeSheet()">ปิด / Close</button>
+  </div>
+</div>
+
+<div id="ct-preview-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;overflow-y:auto;padding:20px">
+  <div style="background:#fff;border-radius:14px;max-width:480px;margin:0 auto;padding:20px;font-family:'Sarabun',sans-serif;font-size:12px;line-height:1.8">
+    <div id="ct-preview-content"></div>
+    <button onclick="document.getElementById('ct-preview-ov').style.display='none'" style="display:block;width:100%;padding:12px;background:#1a5fa8;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;margin-top:16px">ปิด / Close</button>
+  </div>
+</div>
+
+<div id="pw-ov" style="display:none;position:fixed;inset:0;background:rgba(10,34,64,.92);z-index:10000;align-items:center;justify-content:center;flex-direction:column;padding:24px">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:320px;text-align:center;font-family:'Sarabun',sans-serif">
+    <div style="font-size:34px">🔒</div>
+    <div id="pw-label" style="font-weight:700;margin:6px 0 14px;color:#1e2535"></div>
+    <input id="pw-input" type="password" autocomplete="off" style="width:100%;padding:12px;border:1px solid #dde3ee;border-radius:10px;font-size:16px;text-align:center;box-sizing:border-box" placeholder="รหัสผ่าน / password" onkeydown="if(event.key==='Enter')pwSubmit()">
+    <div id="pw-err" style="display:none;color:#c0321a;font-size:12px;margin-top:8px">❌ รหัสผ่านไม่ถูกต้อง</div>
+    <button onclick="pwSubmit()" style="margin-top:14px;width:100%;padding:12px;border:none;border-radius:10px;background:#1a5fa8;color:#fff;font-weight:700;font-size:15px;cursor:pointer">เข้าสู่ระบบ</button>
+    <button onclick="document.getElementById('pw-ov').style.display='none'" style="margin-top:8px;width:100%;padding:10px;border:none;background:none;color:#7080a0;font-size:13px;cursor:pointer">ยกเลิก</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="fb-status"></div>
+
+<script>
+const PP_ID="0812345678";
+const VISION_PROXY="https://seri47-vision.jww8559.workers.dev";
+const LINE_OA_ID="@854lohns";
+const LINE_LINK_WORKER="https://seri47-link.workers.dev"; // 배포 후 실제 URL로 교체
+let ELEC_RATE=5.10,WATER_RATE=15,SERVICE_FEE=0;
+const FLOOR_ROOMS={1:[...Array(10)].map((_,i)=>101+i),2:[...Array(21)].map((_,i)=>201+i),3:[...Array(21)].map((_,i)=>301+i),4:[...Array(21)].map((_,i)=>401+i),5:[...Array(21)].map((_,i)=>501+i)};
+const NAMES=["Somchai P.","Wang Wei","Kim Sunhee","Lee Jaeho","Nguyen Anh","Suda K.","Chen Lin","Tanaka Y.","Aphirak S.","Zhang Hua","Park Min","Niran T.","Li Na","Somsak R.","Wu Fang","Pim W.","Zhao Lei","Aroon P.","Yuki M.","Kanya S.","Priya S.","Akira M.","Liu Yang","Chawee K.","Ryu Jimin"];
+const NATS=["Korean","Chinese","Thai","Japanese","Vietnamese","Indian","Korean","Chinese","Thai","Chinese","Korean","Thai","Chinese","Thai","Chinese","Thai","Chinese","Thai","Japanese","Thai","Indian","Japanese","Chinese","Thai","Korean"];
+let units=[];
+function buildUnits(){units=[];for(let f=1;f<=5;f++){FLOOR_ROOMS[f].forEach(id=>{const big=(id%100)===10||(id%100)===20;units.push({id,floor:f,tenant:NAMES[(id+f)%NAMES.length],nationality:NATS[(id+f)%NATS.length],rent:(big?4200:3800),ePrev:1500+(id*13%900),eCurr:null,wPrev:500+(id*7%280),wCurr:null,vac:false,blacklist:false,paid:false,payStatus:'paid',sent:false,phone:'08'+String(1000000+(id*131)%8999999),lineId:'',lineMsg:'',csNote:'',csHistory:[],lineLinked:false,passportNumEnc:null,passportExpiry:'',passportScanEnc:null,checkin:'',checkout:'',visa:'',tm30Done:false,tm30Date:'',contractData:null,lineQRLinked:false,lineMemo:''});});};}
+buildUnits();window.units=units;
+const occ=()=>units.filter(u=>!u.vac);
+const metered=()=>occ().filter(u=>u.eCurr!=null);
+const eU=u=>(u.eCurr!=null&&u.ePrev!=null)?Math.max(0,u.eCurr-u.ePrev):0;
+const wU=u=>(u.wCurr!=null&&u.wPrev!=null)?Math.max(0,u.wCurr-u.wPrev):0;
+const totalOf=u=>u.rent+eU(u)*ELEC_RATE+wU(u)*WATER_RATE+(SERVICE_FEE||0);
+const fmt=n=>"฿"+Number(n).toLocaleString(undefined,{maximumFractionDigits:2});
+const fmt2=n=>"฿"+Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const payCode=u=>((u.floor-1)*20+(u.id%100))%100;
+function payAmtOf(bill,u){let a=Math.floor(bill)+payCode(u)/100;if(a>=bill)a-=1;return Math.max(0,a);}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display="block";clearTimeout(t._t);t._t=setTimeout(()=>t.style.display="none",2200);}
+function persist(){try{window.seri47Persist&&window.seri47Persist();}catch(e){}}
+
+/* AES-256 */
+const SEC_KEY_NAME="seri47_enc_v1";let _secKey=null;
+async function getSecKey(){if(_secKey)return _secKey;return new Promise((res,rej)=>{const req=indexedDB.open("seri47_sec",1);req.onupgradeneeded=e=>e.target.result.createObjectStore("k");req.onerror=()=>rej(req.error);req.onsuccess=e=>{const idb=e.target.result;const tx=idb.transaction("k","readwrite");const st=tx.objectStore("k");const g=st.get(SEC_KEY_NAME);g.onsuccess=async()=>{if(g.result){_secKey=g.result;res(_secKey);return;}const k=await crypto.subtle.generateKey({name:"AES-GCM",length:256},true,["encrypt","decrypt"]);st.put(k,SEC_KEY_NAME);_secKey=k;res(k);};};});}
+async function secEncrypt(txt){const k=await getSecKey();const iv=crypto.getRandomValues(new Uint8Array(12));const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},k,new TextEncoder().encode(txt));const c=new Uint8Array(iv.length+ct.byteLength);c.set(iv);c.set(new Uint8Array(ct),12);return btoa(String.fromCharCode(...c));}
+async function secDecrypt(b64){try{const k=await getSecKey();const c=Uint8Array.from(atob(b64),x=>x.charCodeAt(0));const d=await crypto.subtle.decrypt({name:"AES-GCM",iv:c.slice(0,12)},k,c.slice(12));return new TextDecoder().decode(d);}catch(e){return null;}}
+function maskPP(n){if(!n)return"—";return n.slice(0,2)+"****"+n.slice(-2);}
+
+/* LOGIN */
+let role=null,curFloorB=1,curFloorR=1;
+async function sha256hex(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+const ROLE_PW={mg:"d1b79c5b436665ba286223e6bec412d24775a06d7dd1d23c39d44b0f67b4f825",own:"996a7d3104bb209d3028290cdb52e773735891a98db4da1e6ebeae2bf28715d7"};
+let pendingRole=null;
+function login(r){if(ROLE_PW[r]){pendingRole=r;document.getElementById('pw-label').textContent=(r==='mg'?'รหัสผ่านผู้จัดการ':'รหัสผ่านเจ้าของ');document.getElementById('pw-input').value='';document.getElementById('pw-err').style.display='none';document.getElementById('pw-ov').style.display='flex';setTimeout(()=>document.getElementById('pw-input').focus(),60);}else doLogin(r);}
+async function pwSubmit(){const r=pendingRole;if(!r)return;const v=document.getElementById('pw-input').value;if((await sha256hex(v))===ROLE_PW[r]){document.getElementById('pw-ov').style.display='none';doLogin(r);}else document.getElementById('pw-err').style.display='block';}
+function doLogin(r){role=r;document.getElementById('login').style.display='none';document.getElementById('topbar').classList.add('show');document.getElementById('tb-badge').textContent=r==='mg'?'🔑 Manager':r==='own'?'👑 Owner':'🏠 Tenant';['mg','own','tn'].forEach(x=>{document.getElementById('sc-'+x).classList.toggle('active',x===r);document.getElementById('nav-'+x).classList.toggle('show',x===r)});if(r==='mg'){renderMg();renderCustList();}else if(r==='own')renderOwn();else renderTn();}
+function logout(){role=null;document.getElementById('login').style.display='flex';document.getElementById('topbar').classList.remove('show');['mg','own','tn'].forEach(x=>{document.getElementById('sc-'+x).classList.remove('active');document.getElementById('nav-'+x).classList.remove('show')});}
+function tab(r,t,btn){document.querySelectorAll('#sc-'+r+' .pane').forEach(p=>p.classList.remove('active'));document.getElementById(r+'-'+t).classList.add('active');btn.parentElement.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');if(r==='mg'&&t==='cust')renderCustList();}
+window.seri47Rerender=function(){if(role==='mg')renderMg();else if(role==='own')renderOwn();else if(role==='tn')renderTn();};
+
+/* MANAGER */
+function renderMg(){renderHome();renderBill();renderRooms();renderRep();renderNotices();}
+function renderHome(){document.getElementById('h-occ').textContent=occ().length;document.getElementById('h-paid').textContent=occ().filter(u=>u.paid).length;document.getElementById('h-od').textContent=occ().filter(u=>!u.paid).length;document.getElementById('h-bl').textContent=occ().filter(u=>u.blacklist).length;document.getElementById('h-rep').textContent=REPAIRS.filter(r=>r.st!=='done').length;document.getElementById('h-rep-list').innerHTML=REPAIRS.slice(0,3).map(r=>`<div class="li"><span class="li-ic">🔧</span><div class="li-info"><div class="li-t">ห้อง ${r.rm} — ${r.t}</div><div class="li-s">${r.who}</div></div><span class="badge ${r.st==='open'?'b-open':'b-ready'}">${r.st}</span></div>`).join('');}
+function ringSet(){const n=metered().length,t=occ().length;document.getElementById('ringn').textContent=n;document.getElementById('ringd').textContent="/ "+t;document.getElementById('ringfg').style.strokeDashoffset=138.2*(1-n/(t||1));}
+function fillSel(){const s=document.getElementById('read-unit');s.innerHTML=occ().map(u=>`<option value="${u.id}">ห้อง ${u.id} · ${u.tenant} ${u.eCurr!=null?'✅':''}</option>`).join('');const nx=occ().find(u=>u.eCurr==null);if(nx)s.value=nx.id;}
+function renderBill(){const floors=Object.keys(FLOOR_ROOMS).map(Number);document.getElementById('bill-floor').innerHTML=floors.map(f=>`<button class="floor-btn ${f===curFloorB?'active':''}" onclick="curFloorB=${f};renderBill()">ชั้น ${f}</button>`).join('');const rows=units.filter(u=>u.floor===curFloorB).map(u=>{if(u.vac)return`<tr style="opacity:.5"><td class="rm">${u.id}</td><td colspan="3" class="nm">ว่าง</td><td><span class="badge b-vacant">—</span></td></tr>`;const e=eU(u),w=wU(u);const blStyle=u.blacklist?'background:var(--bll)':'';return`<tr style="${blStyle}"><td><div class="rm">${u.id}${u.blacklist?'🚫':''}</div><div class="nm">${u.tenant}</div></td><td><input class="cell-in ${u.eCurr!=null?'filled':''}" type="number" value="${u.eCurr??''}" placeholder="${u.ePrev}" oninput="setMeter(${u.id},'e',this.value,this)"><div class="nm" id="eu-${u.id}">${e?e+'u·'+fmt(e*ELEC_RATE):'—'}</div></td><td><input class="cell-in ${u.wCurr!=null?'filled':''}" type="number" value="${u.wCurr??''}" placeholder="${u.wPrev}" oninput="setMeter(${u.id},'w',this.value,this)"><div class="nm" id="wu-${u.id}">${w?w+'u·'+fmt(w*WATER_RATE):'—'}</div></td><td class="tot" id="tot-${u.id}">${fmt(totalOf(u))}</td><td><span class="link" onclick="openSheet(${u.id})">ดู</span><br><span class="badge ${u.sent?'b-paid':u.eCurr!=null?'b-ready':'b-pending'}">${u.sent?'ส่ง':u.eCurr!=null?'พร้อม':'รอ'}</span></td></tr>`;}).join('');document.getElementById('bill-body').innerHTML=rows;document.getElementById('bill-grand').textContent=fmt(occ().reduce((s,u)=>s+totalOf(u),0));document.getElementById('bill-cnt').textContent=metered().length;ringSet();fillSel();}
+function setMeter(id,k,v,el){const u=units.find(x=>x.id===id);u[k==='e'?'eCurr':'wCurr']=v===''?null:parseInt(v);if(el)el.classList.toggle('filled',u[k==='e'?'eCurr':'wCurr']!=null);const e=document.getElementById('eu-'+id),w=document.getElementById('wu-'+id),t=document.getElementById('tot-'+id);if(e){const x=eU(u);e.textContent=x?x+'u·'+fmt(x*ELEC_RATE):'—';}if(w){const x=wU(u);w.textContent=x?x+'u·'+fmt(x*WATER_RATE):'—';}if(t)t.textContent=fmt(totalOf(u));document.getElementById('bill-grand').textContent=fmt(occ().reduce((s,u)=>s+totalOf(u),0));document.getElementById('bill-cnt').textContent=metered().length;ringSet();persist();}
+function renderRooms(){const floors=Object.keys(FLOOR_ROOMS).map(Number);document.getElementById('rooms-floor').innerHTML=floors.map(f=>`<button class="floor-btn ${f===curFloorR?'active':''}" onclick="curFloorR=${f};renderRooms()">ชั้น ${f}</button>`).join('');document.getElementById('rooms-grid').innerHTML=units.filter(u=>u.floor===curFloorR).map(u=>{const c=u.vac?'vac':(u.payStatus==='overdue'?'od':u.blacklist?'bl':'occ');return`<div class="room-cell ${c}" onclick="openRoomSheet(${u.id})"><div class="room-n">${u.id}</div><div class="room-dot"></div></div>`;}).join('');}
+
+/* CUSTOMER FILE */
+let custEditId=null;
+function renderCustList(){const q=(document.getElementById('cust-search').value||'').toLowerCase();const list=units.filter(u=>{if(!q)return true;return String(u.id).includes(q)||(u.tenant||'').toLowerCase().includes(q)||(u.lineId||'').toLowerCase().includes(q);}).slice(0,20);document.getElementById('cust-list').innerHTML=list.map(u=>`<div class="li" style="cursor:pointer;padding:8px 6px" onclick="openCustEdit(${u.id})"><span class="li-ic">${u.vac?'⚪':u.blacklist?'🚫':'👤'}</span><div class="li-info"><div class="li-t">ห้อง ${u.id} ${u.tenant?'— '+u.tenant:''}</div><div class="li-s">${u.vac?'ว่าง':(u.phone||'')+' · '+(u.nationality||'')}</div></div><div style="text-align:right">${u.blacklist?'<span class="badge b-blacklist">🚫 BL</span><br>':''}${u.tm30Done?'<span class="badge b-paid" style="font-size:8px">TM30✓</span><br>':''}<span class="badge ${u.vac?'b-vacant':(u.lineLinked&&u.lineName)?'b-paid':'b-pending'}">${u.vac?'ว่าง':(u.lineLinked&&u.lineName)?'LINE✓':'미연결'}</span></div></div>`).join('');}
+function openCustEdit(id){custEditId=id;const u=units.find(x=>x.id===id);document.getElementById('cust-edit-card').style.display='block';document.getElementById('cust-edit-title').textContent='ห้อง '+id+' — '+(u.tenant||'ว่าง');document.getElementById('cf-name').value=u.tenant||'';document.getElementById('cf-nationality').value=u.nationality||'';document.getElementById('cf-phone').value=u.phone||'';document.getElementById('cf-line-id').value=u.lineId||'';document.getElementById('cf-memo').value=u.lineMemo||'';updateVacUI(u.vac);updateBlacklistUI(u.blacklist);updatePayStatusUI(u.payStatus||'paid');document.getElementById('cf-passport-exp').value=u.passportExpiry||'';document.getElementById('cf-checkin').value=u.checkin||'';document.getElementById('cf-checkout').value=u.checkout||'';document.getElementById('cf-visa').value=u.visa||'';if(u.passportNumEnc){document.getElementById('pp-num-display').style.display='block';document.getElementById('pp-num-masked').textContent=maskPP('XX1234');document.getElementById('pp-reveal-btn').style.display=role==='own'?'inline':'none';document.getElementById('cf-passport-num').style.display='none';}else{document.getElementById('pp-num-display').style.display='none';document.getElementById('cf-passport-num').style.display='block';document.getElementById('cf-passport-num').value='';}if(u.contractData){document.getElementById('ct-saved-wrap').style.display='block';document.getElementById('ct-saved-info').innerHTML=`📄 ${u.contractData.start||'—'} · ${u.contractData.term||'—'}เดือน · ฿${u.contractData.rent||'—'}/เดือน`;}else document.getElementById('ct-saved-wrap').style.display='none';document.getElementById('tm30-date').value=u.tm30Date||'';document.getElementById('tm30-done').checked=!!u.tm30Done;updateTM30Autofill(u);document.getElementById('cf-line-msg').value=u.lineMsg||'';document.getElementById('cf-cs-note').value=u.csNote||'';['cf-banner','cf-cs-banner','cf-pp-banner','cf-ct-banner','cf-tm30-banner'].forEach(id=>{document.getElementById(id).style.display='none';});renderCsHistory(u);document.getElementById('lineqr-status').textContent=u.lineLinked?'✅ เชื่อมแล้ว':'⏳ ยังไม่เชื่อม';
+const lpc=document.getElementById('line-profile-card');
+if(u.lineLinked&&u.lineName){
+  lpc.style.display='flex';
+  document.getElementById('line-name').textContent=u.lineName;
+  document.getElementById('line-uid').textContent=u.lineId||'';
+  const pic=document.getElementById('line-pic');
+  if(u.linePic){pic.src=u.linePic;pic.style.display='block';}else{pic.style.display='none';}
+}else{lpc.style.display='none';}document.getElementById('lineqr-box').innerHTML='<div style="font-size:12px;color:var(--muted)">กด "สร้าง QR"</div>';document.getElementById('cust-edit-card').scrollIntoView({behavior:'smooth'});}
+function custTab(name,btn){document.querySelectorAll('.ctab-pane').forEach(p=>p.classList.remove('active'));document.getElementById('ctab-'+name).classList.add('active');btn.parentElement.querySelectorAll('.ctab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+
+/* BLACKLIST */
+function updateVacUI(vac){const tgl=document.getElementById('vac-toggle');const knob=document.getElementById('vac-knob');const lbl=document.getElementById('vac-label');if(vac){tgl.style.background='#aaa';knob.style.left='3px';lbl.style.color='var(--red)';}else{tgl.style.background='#1a5fa8';knob.style.left='23px';lbl.style.color='var(--muted)';}}
+function toggleVac(){if(!custEditId)return;const u=units.find(x=>x.id===custEditId);u.vac=!u.vac;updateVacUI(u.vac);persist();renderRooms();renderHome();renderCustList();renderBill();toast(u.vac?'⚪ ว่าง / Vacant':'🏠 Occupied');}
+function setPayStatus(s){if(!custEditId)return;const u=units.find(x=>x.id===custEditId);u.payStatus=s;u.paid=(s==='paid');updatePayStatusUI(s);persist();renderRooms();renderHome();toast(s==='paid'?'✅ Paid':'🔴 Overdue');}
+function updatePayStatusUI(s){const bp=document.getElementById('ps-paid');const bo=document.getElementById('ps-overdue');if(!bp||!bo)return;bp.style.outline=s==='paid'?'2px solid #1a8a3a':'none';bo.style.outline=s==='overdue'?'2px solid var(--red)':'none';bp.style.fontWeight=s==='paid'?'800':'700';bo.style.fontWeight=s==='overdue'?'800':'700';}
+function updateBlacklistUI(bl){const tgl=document.getElementById('bl-toggle');const knob=document.getElementById('bl-knob');if(bl){tgl.style.background='var(--black-list)';knob.style.left='23px';}else{tgl.style.background='#ccc';knob.style.left='3px';}}
+function toggleBlacklist(){if(!custEditId)return;const u=units.find(x=>x.id===custEditId);u.blacklist=!u.blacklist;updateBlacklistUI(u.blacklist);persist();renderRooms();renderHome();renderCustList();toast(u.blacklist?'🚫 เพิ่ม Blacklist':'✅ ลบออกจาก Blacklist');}
+function saveCustProfile(){if(!custEditId)return;const u=units.find(x=>x.id===custEditId);u.tenant=document.getElementById('cf-name').value.trim()||u.tenant;u.nationality=document.getElementById('cf-nationality').value.trim();u.phone=document.getElementById('cf-phone').value.trim();u.lineId=document.getElementById('cf-line-id').value.trim();u.lineMemo=document.getElementById('cf-memo').value.trim();document.getElementById('cust-edit-title').textContent='ห้อง '+u.id+' — '+(u.tenant||'ว่าง');persist();renderCustList();renderHome();const b=document.getElementById('cf-banner');b.style.display='block';setTimeout(()=>b.style.display='none',2500);toast('💾 บันทึกแล้ว ✅');}
+
+/* PASSPORT */
+let passportScanB64=null;
+async function savePassportData(){if(!custEditId)return;const u=units.find(x=>x.id===custEditId);const numInput=document.getElementById('cf-passport-num');if(numInput.style.display!=='none'&&numInput.value.trim()){u.passportNumEnc=await secEncrypt(numInput.value.trim());numInput.value='';document.getElementById('pp-num-display').style.display='block';document.getElementById('pp-num-masked').textContent=maskPP('XX1234');document.getElementById('pp-reveal-btn').style.display=role==='own'?'inline':'none';numInput.style.display='none';}if(passportScanB64){u.passportScanEnc=passportScanB64;passportScanB64=null;}u.passportExpiry=document.getElementById('cf-passport-exp').value;u.checkin=document.getElementById('cf-checkin').value;u.checkout=document.getElementById('cf-checkout').value;u.visa=document.getElementById('cf-visa').value.trim();persist();updateTM30Autofill(u);const b=document.getElementById('cf-pp-banner');b.style.display='block';setTimeout(()=>b.style.display='none',2500);toast('🔐 เข้ารหัสและบันทึกแล้ว ✅');}
+function togglePassportInput(){const inp=document.getElementById('cf-passport-num');const disp=document.getElementById('pp-num-display');if(inp.style.display==='none'){inp.style.display='block';disp.style.display='none';}else{inp.style.display='none';disp.style.display='block';}}
+async function revealPassport(){if(role!=='own'){toast('🔒 Owner เท่านั้น');return;}if(!custEditId)return;const u=units.find(x=>x.id===custEditId);if(!u.passportNumEnc){toast('ไม่มีข้อมูล');return;}const plain=await secDecrypt(u.passportNumEnc);if(!plain){toast('❌ ถอดรหัสไม่ได้');return;}const el=document.getElementById('pp-num-masked');el.textContent=plain;setTimeout(()=>{el.textContent=maskPP(plain);},10000);toast('👁 แสดง 10 วินาที');}
+async function revealPassportScan(){if(role!=='own'){toast('🔒 Owner เท่านั้น');return;}const img=document.getElementById('pp-scan-img');img.style.filter='none';setTimeout(()=>{img.style.filter='blur(8px)';},15000);toast('👁 แสดง 15 วินาที');}
+async function onPassportScan(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=async e=>{const b64data=e.target.result;const enc=await secEncrypt(b64data);passportScanB64=enc;const img=document.getElementById('pp-scan-img');img.src=b64data;img.style.filter='blur(8px)';document.getElementById('pp-scan-preview').style.display='block';document.getElementById('pp-scan-reveal').style.display=role==='own'?'inline':'none';toast('📸 รูปพร้อม — กด Save เพื่อเข้ารหัส');};reader.readAsDataURL(file);event.target.value='';}
+
+/* TM30 */
+function updateTM30Autofill(u){const el=document.getElementById('tm30-autofill');if(!el)return;el.innerHTML=`<b>ห้อง:</b> ${u.id}<br><b>ชื่อ:</b> ${u.tenant||'—'}<br><b>สัญชาติ:</b> ${u.nationality||'—'}<br><b>วีซ่า:</b> ${u.visa||'—'}<br><b>Check-in:</b> ${u.checkin||'—'}<br><b>Passport:</b> ${u.passportNumEnc?'[Encrypted ✓]':'ยังไม่กรอก'}`;}
+function saveTM30(){if(!custEditId)return;const u=units.find(x=>x.id===custEditId);u.tm30Done=document.getElementById('tm30-done').checked;u.tm30Date=document.getElementById('tm30-date').value;persist();renderCustList();const b=document.getElementById('cf-tm30-banner');b.style.display='block';setTimeout(()=>b.style.display='none',2500);toast('✅ บันทึก TM30 แล้ว');}
+
+/* E-CONTRACT */
+const sigCtx={};
+function initSigCanvas(id){const canvas=document.getElementById('sig-'+id);if(!canvas)return;const ctx=canvas.getContext('2d');ctx.strokeStyle='#1a1a2a';ctx.lineWidth=2;ctx.lineCap='round';let drawing=false,lastX=0,lastY=0;function getXY(e){const r=canvas.getBoundingClientRect();const src=e.touches?e.touches[0]:e;return[src.clientX-r.left,src.clientY-r.top];}function start(e){drawing=true;[lastX,lastY]=getXY(e);e.preventDefault();}function draw(e){if(!drawing)return;e.preventDefault();const[x,y]=getXY(e);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(x,y);ctx.stroke();[lastX,lastY]=[x,y];}function stop(){drawing=false;}canvas.addEventListener('mousedown',start);canvas.addEventListener('mousemove',draw);canvas.addEventListener('mouseup',stop);canvas.addEventListener('touchstart',start,{passive:false});canvas.addEventListener('touchmove',draw,{passive:false});canvas.addEventListener('touchend',stop);sigCtx[id]=ctx;}
+function clearSig(id){const canvas=document.getElementById('sig-'+id);if(!canvas)return;sigCtx[id].clearRect(0,0,canvas.width,canvas.height);}
+function getSigDataURL(id){const canvas=document.getElementById('sig-'+id);if(!canvas)return null;return canvas.toDataURL();}
+setTimeout(()=>{initSigCanvas('tenant');initSigCanvas('lessor');},200);
+function previewContract(){if(!custEditId)return;const u=units.find(x=>x.id===custEditId);const rent=document.getElementById('ct-rent').value||u.rent;const deposit=document.getElementById('ct-deposit').value||'—';const term=document.getElementById('ct-term').value||12;const start=document.getElementById('ct-start').value||'—';const co1=document.getElementById('ct-co1').value;const co2=document.getElementById('ct-co2').value;document.getElementById('ct-preview-content').innerHTML=`<h3 style="font-size:15px;font-weight:700;text-align:center;margin-bottom:12px">สัญญาเช่าห้องพักอาศัย<br>SERI 47 RESIDENCE</h3><div style="font-size:11px;line-height:2"><div><b>ห้อง:</b> ${u.id} · ชั้น ${u.floor}</div><div><b>ผู้เช่า:</b> ${u.tenant||'—'}</div><div><b>สัญชาติ:</b> ${u.nationality||'—'}</div><div><b>ระยะเวลา:</b> ${term} เดือน</div><div><b>วันเริ่ม:</b> ${start}</div><div><b>ค่าเช่า:</b> ฿${rent}/เดือน</div><div><b>เงินประกัน:</b> ฿${deposit}</div><div><b>ค่าไฟ:</b> ฿${ELEC_RATE}/หน่วย · <b>ค่าน้ำ:</b> ฿${WATER_RATE}/หน่วย</div>${co1?`<div><b>ผู้พักร่วม 1:</b> ${co1}</div>`:''}${co2?`<div><b>ผู้พักร่วม 2:</b> ${co2}</div>`:''}</div><hr style="margin:10px 0;border-color:#eee"><div style="font-size:10px;color:#7080a0;line-height:1.6">ข้อ 5: ค่าปรับ วันที่ 8: 500฿ · วันที่ 9+: 50฿/วัน<br>ข้อ 21: ผิดสัญญา = บอกเลิกทันที · ริบเงินประกัน<br>ข้อ 22: ส่งมอบห้องภายใน 3 วัน</div>`;document.getElementById('ct-preview-ov').style.display='block';}
+function saveContract(){if(!custEditId)return;const u=units.find(x=>x.id===custEditId);u.contractData={rent:document.getElementById('ct-rent').value||u.rent,deposit:document.getElementById('ct-deposit').value,term:document.getElementById('ct-term').value||12,start:document.getElementById('ct-start').value,signedAt:new Date().toLocaleDateString('th-TH'),tenantSig:getSigDataURL('tenant'),lessorSig:getSigDataURL('lessor')};persist();document.getElementById('ct-saved-wrap').style.display='block';document.getElementById('ct-saved-info').innerHTML=`📄 ${u.contractData.start||'—'} · ${u.contractData.term}เดือน · ฿${u.contractData.rent}/เดือน<br>🖊️ เซ็นเมื่อ ${u.contractData.signedAt}`;const b=document.getElementById('cf-ct-banner');b.style.display='block';setTimeout(()=>b.style.display='none',2500);toast('📄 บันทึกสัญญาแล้ว ✅');}
+
+/* LINE QR */
+function generateLineQR(){if(!custEditId)return;const u=units.find(x=>x.id===custEditId);const qrUrl=`https://liff.line.me/2010286411-KSjGtKI5?room=${u.id}`;const box=document.getElementById('lineqr-box');box.innerHTML='';new QRCode(box,{text:qrUrl,width:180,height:180,correctLevel:QRCode.CorrectLevel.M});const lbl=document.createElement('div');lbl.style.cssText='font-size:10px;color:#333;text-align:center;margin-top:6px;font-weight:700';lbl.textContent='ห้อง '+u.id;box.appendChild(lbl);toast('✅ สร้าง QR แล้ว · พิมพ์ติดหน้าประตู');}
+function printLineQR(){const box=document.getElementById('lineqr-box');const canvas=box.querySelector('canvas');if(!canvas){toast('สร้าง QR ก่อน');return;}const w=window.open('','_blank');w.document.write(`<html><body style="text-align:center;padding:20px;font-family:sans-serif"><h2>Seri 47 Residence — ห้อง ${custEditId}</h2><p style="color:#06C755;font-weight:700">สแกนเพื่อเชื่อม LINE / Scan to link LINE</p><img src="${canvas.toDataURL()}" style="width:200px;height:200px"><p style="font-size:12px;color:#999">BEE Free · @854lohns</p></body></html>`);w.print();}
+
+/* CS */
+function saveCustCS(){if(!custEditId)return;const u=units.find(x=>x.id===custEditId);const msg=document.getElementById('cf-line-msg').value.trim();const note=document.getElementById('cf-cs-note').value.trim();u.lineMsg=msg;u.csNote=note;if(msg||note){const entry={ts:new Date().toLocaleString('th-TH',{timeZone:'Asia/Bangkok'}),msg:msg.slice(0,200),note};u.csHistory=(u.csHistory||[]).concat(entry).slice(-20);}persist();renderCsHistory(u);const b=document.getElementById('cf-cs-banner');b.style.display='block';setTimeout(()=>b.style.display='none',2500);toast('💾 CS บันทึกแล้ว ✅');}
+function renderCsHistory(u){const hist=u.csHistory||[];const wrap=document.getElementById('cf-cs-hist-wrap');const div=document.getElementById('cf-cs-hist');if(!hist.length){wrap.style.display='none';return;}wrap.style.display='block';div.innerHTML=hist.slice().reverse().map(e=>`<div style="margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--border)"><span style="color:var(--primary);font-weight:700">${e.ts}</span><br>${e.note?'📝 '+e.note+'<br>':''}${e.msg?'💬 '+e.msg.slice(0,80)+'…':''}</div>`).join('');}
+
+/* AI CS */
+async function runAICS(){if(!custEditId)return;const u=units.find(x=>x.id===custEditId);const lineMsg=u.lineMsg||document.getElementById('cf-line-msg').value;const type=document.getElementById('aics-type').value;const extra=document.getElementById('aics-extra').value;document.getElementById('aics-loading').style.display='block';document.getElementById('aics-result-wrap').style.display='none';const prompts={reply:`You are CS assistant for Seri 47 Residence Bangkok. Room:${u.id} Tenant:${u.tenant} Nationality:${u.nationality||'—'}.\nLINE messages:${lineMsg||'(none)'}\nDraft polite reply Thai+English.${extra?'\nExtra:'+extra:''}`,summary:`Summarize tenant conversation room ${u.id} (${u.tenant}). Key issues+actions. Thai+English.\n${lineMsg||'(none)'}`,complaint:`Analyze complaint room ${u.id} (${u.tenant}). Severity 1-5, root cause, resolution. Thai+English.\n${lineMsg||'(none)'}`,payment:`Payment reminder room ${u.id} (${u.tenant}). Owe ${fmt(totalOf(u))}. PromptPay:0812345678. Thai+English.`,repair:`Repair ack room ${u.id}. Timeline 24hrs. Thai+English.\n${lineMsg||extra||'(no details)'}`,eviction:`Formal eviction warning room ${u.id} per Seri47 lease clause 21. 30-day notice. Thai+English.\nReason:${extra||'Non-payment'}`};try{const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":"","anthropic-version":"2023-06-01"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:500,messages:[{role:"user",content:prompts[type]||prompts.reply}]})});const data=await res.json();const txt=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');document.getElementById('aics-result').textContent=txt||'(no response)';document.getElementById('aics-result-wrap').style.display='block';}catch(e){document.getElementById('aics-result').textContent='❌ Error: '+e.message;document.getElementById('aics-result-wrap').style.display='block';}finally{document.getElementById('aics-loading').style.display='none';}}
+function copyAIResult(){navigator.clipboard.writeText(document.getElementById('aics-result').textContent).then(()=>toast('📋 คัดลอกแล้ว'));}
+function saveAIResult(){if(!custEditId)return;const u=units.find(x=>x.id===custEditId);const txt=document.getElementById('aics-result').textContent;const entry={ts:new Date().toLocaleString('th-TH',{timeZone:'Asia/Bangkok'}),note:'🤖 AI: '+txt.slice(0,150),msg:''};u.csHistory=(u.csHistory||[]).concat(entry).slice(-20);persist();renderCsHistory(u);toast('💾 บันทึก CS แล้ว ✅');}
+
+/* VISION */
+let camMode='multi';
+function openCamModal(mode){camMode=mode;document.getElementById('cam-sub').textContent=mode==='multi'?'หลายรูปพร้อมกัน':'ทีละห้อง';document.getElementById('cam-overlay').classList.add('open');}
+function closeCamModal(){document.getElementById('cam-overlay').classList.remove('open');}
+function camChoose(type){closeCamModal();document.getElementById('fi-'+camMode+'-'+type).click();}
+function setRead(m,c){const e=document.getElementById('read-status');e.textContent=m;e.className="read-status "+(c||"");}
+function toB64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});}
+async function visionMeters(file,multi){const _t0=Date.now();const b64=await toB64(file),mime=file.type||'image/jpeg';const prompt=multi?"Look for room number labels (stickers/tags) and electric meter digits in this image. For EACH meter visible, return room number and kWh reading. Ignore walls, pipes, hands. JSON array only: [{\"room\":<int>,\"reading\":<int>}]":"Find the room number label AND the electric meter digits. Ignore everything else (walls, pipes, hands). Return JSON only: {\"room\":<int>,\"reading\":<int>}";const res=await fetch(VISION_PROXY,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:4096,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:mime,data:b64}},{type:"text",text:prompt}]}]})});const raw=await res.text();if(!res.ok)throw new Error("API "+res.status);let d;try{d=JSON.parse(raw);}catch(e){throw new Error("parse fail");}if(d.error)throw new Error(d.error.message||"API error");let txt=((d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("")).replace(/```json/gi,"").replace(/```/g,"").trim();const o=multi?"[":"{",cl=multi?"]":"}";const s=txt.indexOf(o),e2=txt.lastIndexOf(cl);if(s<0||e2<s)throw new Error("no JSON");const result=JSON.parse(txt.slice(s,e2+1));const _ms=Date.now()-_t0;try{const dbRef=firebase.database().ref('ocr_log').push();dbRef.set({ts:Date.now(),ms:_ms,multi:multi,found:Array.isArray(result)?result.length:1});}catch(e){}return result;}
+function showThumbs(files){document.getElementById('thumbs').innerHTML="";[...files].forEach(f=>{const img=document.createElement('img');img.className='thumb';img.src=URL.createObjectURL(f);document.getElementById('thumbs').appendChild(img);});}
+async function onMulti(ev){let files=[...ev.target.files];if(!files.length)return;ev.target.value="";files=await Promise.all(files.map(compressImg));showThumbs(files);setRead("🤖 Claude อ่าน "+files.length+" รูป…");let applied=0,err=null;for(const f of files){try{const arr=await visionMeters(f,true);if(Array.isArray(arr)){arr.forEach(o=>{const rm=parseInt(o.room,10),rd=parseInt(o.reading,10),u=units.find(x=>x.id===rm&&!x.vac);if(u&&!isNaN(rd)){u.eCurr=rd;applied++;}});}}catch(e){err=e.message;}}if(err)setRead("⚠️ error: "+err,"demo");else if(applied===0)setRead("⚠️ ไม่พบ","demo");else setRead("✅ AI อ่าน "+applied+" ห้อง","live");renderBill();persist();toast(applied?"🤖 AI: "+applied+" ห้อง":"⚠️ "+(err?"error":"ไม่ตรง"));}
+async function onOne(ev){let f=ev.target.files[0];if(!f)return;ev.target.value="";f=await compressImg(f);showThumbs([f]);const id=+document.getElementById('read-unit').value,u=units.find(x=>x.id===id);setRead("🤖 อ่านมิเตอร์ห้อง "+id+"…");let val=null,err=null;try{const r=await visionMeters(f,false);const rd=r?parseInt(r.reading,10):NaN;if(!isNaN(rd))val=rd;}catch(e){err=e.message;}if(err){setRead("⚠️ error: "+err,"demo");renderBill();persist();return;}if(val==null){setRead("⚠️ ไม่สามารถอ่าน","demo");return;}u.eCurr=val;setRead("✅ อ่านได้","live");const l=document.getElementById('read-last');l.style.display="block";l.innerHTML=`ห้อง <b>${id}</b> → <b>${val}</b> (${eU(u)}u · ${fmt(eU(u)*ELEC_RATE)})`;renderBill();persist();toast("🤖 ห้อง "+id);}
+/* ── 이미지 압축: 최대 800px, JPEG 0.75 ── */
+async function compressImg(file){
+  const MAX=800;
+  return new Promise(res=>{
+    const img=new Image();
+    img.onload=()=>{
+      let w=img.width,h=img.height;
+      if(w>MAX||h>MAX){const s=Math.min(MAX/w,MAX/h);w=Math.round(w*s);h=Math.round(h*s);}
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      c.toBlob(b=>res(new File([b],file.name,{type:'image/jpeg'})),'image/jpeg',0.75);
+    };
+    img.src=URL.createObjectURL(file);
+  });
+}
+function autoAll(){occ().forEach(u=>{if(u.eCurr==null)u.eCurr=u.ePrev+(35+Math.floor(Math.random()*95));if(u.wCurr==null)u.wCurr=u.wPrev+(1+Math.floor(Math.random()*6));});setRead("⚡ เดโมครบ","demo");renderBill();persist();toast("⚡ เดโม "+occ().length+" ห้อง");}
+
+/* REPAIRS / NOTICES */
+const REPAIRS=[{rm:108,t:"แอร์ไม่เย็น",who:"Suda K.",st:"open"},{rm:214,t:"ก๊อกน้ำรั่ว",who:"Chen Lin",st:"progress"},{rm:401,t:"ไฟห้องน้ำเสีย",who:"Park Min",st:"open"},{rm:512,t:"ประตูล็อกไม่ได้",who:"Yuki M.",st:"open"}];
+let NOTICES=[{from:"ผู้จัดการ",date:"3 Jun 2026",livin:false,body:"แจ้งระงับการชำระค่าเช่าเดือนมิถุนายน — Livin ค้างโอนเงินเกิน 30 วัน"},{from:"Livin Thailand",date:"24 May 2026",livin:true,body:"ปรับอัตราค่าน้ำ ฿15/หน่วย · ค่าไฟ ฿5.10/หน่วย"}];
+function renderRep(){document.getElementById('rep-list').innerHTML=REPAIRS.map((r,i)=>`<div class="li"><span class="li-ic">🔧</span><div class="li-info"><div class="li-t">ห้อง ${r.rm} — ${r.t}</div><div class="li-s">${r.who}</div></div><div style="text-align:right"><span class="badge ${r.st==='open'?'b-open':r.st==='progress'?'b-ready':'b-paid'}">${r.st}</span><br><button class="btn-sm btn-sm-out" style="margin-top:4px" onclick="REPAIRS[${i}].st='done';renderRep();renderHome();toast('ปิดงานแล้ว ✅')">เสร็จ</button></div></div>`).join('');}
+function renderNotices(){document.getElementById('notice-hist').innerHTML=NOTICES.map(n=>`<div class="notice-card ${n.livin?'livin':''}"><div class="nc-top"><span class="nc-from">${n.from}</span><span>${n.date}</span></div><div class="nc-body">${n.body}</div></div>`).join('');}
+function sendNotice(){const t=document.getElementById('notice-text').value.trim();if(!t){toast('กรุณาพิมพ์ข้อความ');return;}NOTICES.unshift({from:"ผู้จัดการ",date:"3 Jun 2026",livin:false,body:t});document.getElementById('notice-text').value="";renderNotices();renderTnNotice();toast("📨 ส่งแล้ว ✅");}
+function submitRepair(){const t=document.getElementById('tn-rep-text').value;if(t){toast('ส่งคำขอแล้ว ✅');document.getElementById('tn-rep-text').value='';}else toast('กรุณากรอกรายละเอียด');}
+
+/* OWNER */
+function renderOwn(){const billed=occ().reduce((s,u)=>s+totalOf(u),0),recv=occ().filter(u=>u.paid).reduce((s,u)=>s+totalOf(u),0),out=billed-recv;document.getElementById('o-billed').textContent=fmt(billed);document.getElementById('o-recv').textContent=fmt(recv);document.getElementById('o-out').textContent=fmt(out);const pct=Math.round(recv/(billed||1)*100);document.getElementById('o-bar').style.width=pct+"%";document.getElementById('o-pct').textContent=pct+"% เก็บได้";document.getElementById('o-odlist').innerHTML=occ().filter(u=>!u.paid).slice(0,8).map(u=>`<div class="li"><span class="li-ic">${u.blacklist?'🚫':'🔴'}</span><div class="li-info"><div class="li-t">ห้อง ${u.id} — ${u.tenant}</div><div class="li-s">ค้าง <b>${fmt(totalOf(u))}</b></div></div><button class="btn-sm btn-sm-out" onclick="toast('ส่งทวงถาม ✅')">ทวง</button></div>`).join('');document.getElementById('r-jun').textContent="ออกบิล "+fmt(billed)+" · รับ "+fmt(recv);document.getElementById('r-rate').textContent=pct+"% ("+occ().filter(u=>u.paid).length+"/"+occ().length+")";document.getElementById('r-save').textContent=fmt(Math.round(billed*0.2));}
+function smsSample(){const u=occ().find(x=>!x.paid);if(!u){toast('ไม่มีห้องค้าง');return;}document.getElementById('sms-in').value="KBANK แจ้งเงินเข้า: บัญชี xxx-x-x1234-5 รับโอน "+totalOf(u).toFixed(2)+" บาท 03/06/26 14:22";}
+function parseSMS(){const t=document.getElementById('sms-in').value||"";const nums=(t.match(/[\d,]+\.\d{2}/g)||[]).map(s=>parseFloat(s.replace(/,/g,'')));const res=document.getElementById('sms-res');res.style.display='block';let matched=[];nums.forEach(amt=>{const u=occ().find(x=>!x.paid&&Math.abs(totalOf(x)-amt)<1);if(u){u.paid=true;matched.push(u);}});if(matched.length){renderOwn();res.className='read-status live';res.innerHTML="✅ "+matched.map(u=>"ห้อง "+u.id).join(" · ");document.getElementById('sms-in').value="";toast("✅ "+matched.length+" ห้อง");persist();}else{res.className='read-status demo';res.textContent="⚠️ ไม่พบยอดตรง";}}
+
+/* TENANT */
+const TENANT_ID=312;
+function renderTn(){const u=units.find(x=>x.id===TENANT_ID);if(u.eCurr==null){u.eCurr=u.ePrev+128;u.wCurr=u.wPrev+3;}const e=eU(u),w=wU(u),tot=totalOf(u);document.getElementById('tn-room').textContent="ห้อง "+u.id+" · "+u.tenant+" · มิ.ย. 2026";document.getElementById('tn-calc').innerHTML=`<tr><td>ค่าเช่า</td><td>${fmt(u.rent)}</td></tr><tr><td>ค่าไฟ ${e}u×฿${ELEC_RATE}</td><td>${fmt(e*ELEC_RATE)}</td></tr><tr><td>ค่าน้ำ ${w}u×฿${WATER_RATE}</td><td>${fmt(w*WATER_RATE)}</td></tr><tr><td>รวม</td><td>${fmt(tot)}</td></tr>`;const pay=payAmtOf(tot,u);document.getElementById('tn-amt').innerHTML=fmt2(pay);document.getElementById('tn-pp').textContent=PP_ID;document.getElementById('tn-ref').textContent="SR47-"+u.id;document.getElementById('tn-qr').innerHTML="";new QRCode(document.getElementById('tn-qr'),{text:ppPayload(pay),width:150,height:150,correctLevel:QRCode.CorrectLevel.M});renderTnNotice();}
+function renderTnNotice(){const el=document.getElementById('tn-notice-list');if(el)el.innerHTML=NOTICES.map(n=>`<div class="notice-card ${n.livin?'livin':''}"><div class="nc-top"><span class="nc-from">${n.from}</span><span>${n.date}</span></div><div class="nc-body">${n.body}</div></div>`).join('');}
+
+/* PROMPTPAY */
+function tlv(i,v){return i+String(v.length).padStart(2,"0")+v;}
+function crc16(s){let c=0xFFFF;for(let i=0;i<s.length;i++){c^=s.charCodeAt(i)<<8;for(let j=0;j<8;j++){c=(c&0x8000)?((c<<1)^0x1021):(c<<1);c&=0xFFFF;}}return c.toString(16).toUpperCase().padStart(4,"0");}
+function ppPayload(a){const m=tlv("00","A000000677010111")+tlv("01","0066"+PP_ID.replace(/\D/g,"").replace(/^0/,""));let p=tlv("00","01")+tlv("01","12")+tlv("29",m)+tlv("53","764")+tlv("54",Number(a).toFixed(2))+tlv("58","TH");p+="6304";return p+crc16(p);}
+
+/* INVOICE SHEET */
+function openSheet(id){const u=units.find(x=>x.id===id);const e=eU(u),w=wU(u),tot=totalOf(u),pay=payAmtOf(tot,u);document.getElementById('sh-room').textContent="ห้อง "+id;document.getElementById('sh-sub').textContent=(u.tenant||"")+" · มิ.ย. 2026";document.getElementById('sh-calc').innerHTML=`<tr><td>ค่าเช่า</td><td>${fmt(u.rent)}</td></tr><tr><td>ค่าไฟ ${e}u×฿${ELEC_RATE}</td><td>${fmt(e*ELEC_RATE)}</td></tr><tr><td>ค่าน้ำ ${w}u×฿${WATER_RATE}</td><td>${fmt(w*WATER_RATE)}</td></tr><tr><td>รวม</td><td>${fmt(tot)}</td></tr>`;document.getElementById('sh-amt').innerHTML=fmt2(pay);document.getElementById('sh-pp').textContent=PP_ID;document.getElementById('sh-ref').textContent="SR47-"+id;document.getElementById('sh-qr').innerHTML="";new QRCode(document.getElementById('sh-qr'),{text:ppPayload(pay),width:150,height:150,correctLevel:QRCode.CorrectLevel.M});document.getElementById('sh-line').textContent=`🏢 Seri 47\nบิล มิ.ย. · ห้อง ${id}\nค่าเช่า ${fmt(u.rent)}\nค่าไฟ ${e}u ${fmt(e*ELEC_RATE)}\nค่าน้ำ ${w}u ${fmt(w*WATER_RATE)}\n──────\nรวม ${fmt(tot)}\n📲 PromptPay ${fmt2(pay)}`;document.getElementById('ov').classList.add('open');}
+function closeSheet(){document.getElementById('ov').classList.remove('open');}
+function openRoomSheet(id){tab('mg','cust',document.querySelector('#nav-mg .bnav-btn:nth-child(4)'));document.getElementById('cust-search').value=String(id);renderCustList();openCustEdit(id);}
+function bulkSend(){const list=occ();document.getElementById('ov').classList.add('open');document.getElementById('sheet').innerHTML=`<div class="sh-handle"></div><div class="sh-title">📨 กำลังส่ง LINE</div><div class="sh-sub">Sending...</div><div class="sending"><div id="sc" style="font-size:34px;font-weight:700;color:var(--line)">0</div><div style="font-size:11px;color:var(--muted)">/ ${list.length} ห้อง</div><div class="send-bar"><div class="send-fill" id="sf"></div></div></div>`;let i=0;const t=setInterval(()=>{i++;document.getElementById('sc').textContent=i;document.getElementById('sf').style.width=(i/list.length*100)+"%";if(i>=list.length){clearInterval(t);list.forEach(u=>u.sent=true);persist();setTimeout(()=>{closeSheet();renderBill();toast("✅ ส่งสำเร็จ "+list.length+" ห้อง");},420);}},20);}
+
+renderCustList();
+</script>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import{getDatabase,ref,set,onValue}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+const app=initializeApp({apiKey:"AIzaSyBudSDmzNR-JQXEIcebs2kKSVdu2GCSHds",authDomain:"bee-free-9350a.firebaseapp.com",databaseURL:"https://bee-free-9350a-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"bee-free-9350a",storageBucket:"bee-free-9350a.firebasestorage.app",messagingSenderId:"209878063440",appId:"1:209878063440:web:78fc19709239e7b5803455"});
+const db=getDatabase(app);
+const SREF=ref(db,"seri47/state");
+let booted=false;
+window.seri47Persist=function(){
+  if(!window.units)return;
+  const rooms={};
+  window.units.forEach(u=>{rooms[u.id]={paid:!!u.paid,payStatus:(u.payStatus??'paid'),eCurr:(u.eCurr??null),wCurr:(u.wCurr??null),sent:!!u.sent,vac:!!u.vac,blacklist:!!u.blacklist,tenant:(u.tenant??null),phone:(u.phone??null),lineId:(u.lineId??null),nationality:(u.nationality??null),lineMemo:(u.lineMemo??null),lineMsg:(u.lineMsg??null),csNote:(u.csNote??null),csHistory:(u.csHistory??[]),lineLinked:!!u.lineLinked,lineName:(u.lineName??null),linePic:(u.linePic??null),lineStatus:(u.lineStatus??null),passportNumEnc:(u.passportNumEnc??null),passportExpiry:(u.passportExpiry??null),passportScanEnc:(u.passportScanEnc??null),checkin:(u.checkin??null),checkout:(u.checkout??null),visa:(u.visa??null),tm30Done:!!u.tm30Done,tm30Date:(u.tm30Date??null),contractData:(u.contractData??null),lineQRLinked:!!u.lineQRLinked};});
+  set(SREF,{rooms,ts:Date.now()}).catch(()=>{});
+  const e=document.getElementById("fb-status");if(e)e.textContent="☁️ Saved";
+};
+onValue(SREF,function(snap){
+  if(!snap.exists())return;
+  const d=snap.val();if(!d||!d.rooms)return;
+  window.units.forEach(u=>{
+    const r=d.rooms[u.id];if(!r)return;
+    u.paid=!!r.paid;if(r.eCurr!=null)u.eCurr=r.eCurr;if(r.wCurr!=null)u.wCurr=r.wCurr;
+    u.sent=!!r.sent;u.vac=!!r.vac;u.blacklist=!!r.blacklist;if(r.payStatus)u.payStatus=r.payStatus;
+    if(r.tenant)u.tenant=r.tenant;if(r.phone)u.phone=r.phone;if(r.lineId)u.lineId=r.lineId;if(r.nationality)u.nationality=r.nationality;
+    if(r.lineMemo)u.lineMemo=r.lineMemo;if(r.lineMsg)u.lineMsg=r.lineMsg;if(r.csNote)u.csNote=r.csNote;if(r.csHistory)u.csHistory=r.csHistory;
+    u.lineLinked=!!r.lineLinked;
+    if(r.lineName)u.lineName=r.lineName;if(r.linePic)u.linePic=r.linePic;if(r.lineStatus!=null)u.lineStatus=r.lineStatus;
+    if(r.passportNumEnc)u.passportNumEnc=r.passportNumEnc;if(r.passportExpiry)u.passportExpiry=r.passportExpiry;
+    if(r.passportScanEnc)u.passportScanEnc=r.passportScanEnc;
+    if(r.checkin)u.checkin=r.checkin;if(r.checkout)u.checkout=r.checkout;if(r.visa)u.visa=r.visa;
+    u.tm30Done=!!r.tm30Done;if(r.tm30Date)u.tm30Date=r.tm30Date;
+    if(r.contractData)u.contractData=r.contractData;u.lineQRLinked=!!r.lineQRLinked;
+  });
+  if(!booted){booted=true;if(window.seri47Rerender)window.seri47Rerender();}
+  const e=document.getElementById("fb-status");if(e)e.textContent="☁️ Firebase ✓";
+});
+</script>
+</body>
+</html>
