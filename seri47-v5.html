@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seri 47 Residence — BeeHome v5</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--primary:#1a5fa8;--pl:#e8f2fc;--green:#1a7a3a;--green2:#2a9a50;--gl:#e8f8ee;--gold:#b07820;--gold2:#d49030;--goldl:#fdf4e0;--red:#c0321a;--redl:#fdf0ee;--orange:#c85a10;--ol:#fff0e4;--dark:#1a1a2a;--bg:#f4f7fc;--surface:#fff;--border:#dde3ee;--muted:#7080a0;--text:#1e2535;--line:#06C755}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;max-width:480px;margin:0 auto;min-height:100vh}
+.bil .en{font-size:9px;color:var(--muted);font-weight:400}
+/* login */
+.login{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:30px 22px;background:linear-gradient(160deg,#0a2240,#1565b8)}
+.login-logo{font-size:50px}.login-title{font-size:24px;font-weight:700;color:#fff}
+.login-sub{font-size:12px;color:rgba(255,255,255,.7);margin-bottom:26px;text-align:center;line-height:1.7}
+.role-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%;max-width:340px}
+.role-btn{padding:16px 8px;border-radius:14px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;text-align:center;transition:.2s}
+.role-btn:hover{background:var(--gold2)}
+.role-ic{font-size:26px}.role-th{font-size:12px;font-weight:700;margin-top:4px}.role-en{font-size:9px;opacity:.7}
+.login-note{font-size:10px;color:rgba(255,255,255,.5);margin-top:18px}
+/* shell */
+.topbar{background:var(--dark);padding:10px 14px;display:none;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:150}
+.topbar.show{display:flex}
+.topbar-badge{font-size:10px;color:var(--gold2);font-weight:700;background:rgba(210,144,48,.15);border:1px solid rgba(210,144,48,.3);border-radius:8px;padding:2px 7px}
+.topbar-title{font-size:13px;color:#fff;font-weight:600;margin-left:8px}
+.topbar-logout{font-size:10px;color:var(--muted);cursor:pointer;padding:4px 8px;border:1px solid #333;border-radius:6px}
+.screen{display:none;padding:14px 12px 96px}.screen.active{display:block}
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--surface);border-top:2px solid var(--border);display:none;z-index:140}
+.bnav.show{display:flex}
+.bnav-btn{flex:1;padding:8px 2px;text-align:center;cursor:pointer;border:none;background:transparent;font-family:inherit}
+.bnav-ic{font-size:18px}.bnav-l{font-size:8px;color:var(--muted);display:block;font-weight:700;margin-top:1px}
+.bnav-btn.active .bnav-l{color:var(--primary)}.bnav-btn.active{border-top:2px solid var(--primary);margin-top:-2px}
+.pane{display:none}.pane.active{display:block}
+/* generic */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.card-sub{font-size:10px;color:var(--muted);margin-bottom:12px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.stat-grid.g3{grid-template-columns:1fr 1fr 1fr}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 10px}
+.stat-card.c{text-align:center}
+.stat-val{font-size:22px;font-weight:700}.stat-lab{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.3}
+.rate-row{display:flex;gap:7px;margin-bottom:8px}
+.rate-pill{flex:1;background:var(--pl);border:1.5px solid #c0d8f0;border-radius:10px;padding:7px 8px;font-size:10px;display:flex;align-items:center;gap:4px;color:var(--primary);font-weight:700}
+.rate-pill input{width:40px;padding:3px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;text-align:center}
+.btn{display:block;width:100%;padding:12px;border:none;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;text-align:center;transition:.15s}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#fff}.btn-green{background:var(--green);color:#fff}.btn-line{background:var(--line);color:#fff}
+.btn-outline{background:transparent;color:var(--primary);border:1.5px solid var(--primary)}
+.btn-row{display:flex;gap:8px}.btn-row .btn{margin-bottom:0}
+.btn-sm{padding:6px 10px;font-size:11px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;font-weight:700;width:auto;display:inline-block}
+.btn-sm-out{background:transparent;color:var(--primary);border:1.5px solid var(--primary)}
+.ring-wrap{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.ring{position:relative;width:54px;height:54px;flex-shrink:0}.ring svg{transform:rotate(-90deg)}
+.ring-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--primary)}
+.ring-txt small{font-size:8px;color:var(--muted);font-weight:400}
+.read-status{font-size:11px;color:var(--muted);min-height:15px;margin-top:6px;line-height:1.5}
+.read-status.live{color:var(--green);font-weight:700}.read-status.demo{color:var(--gold);font-weight:700}
+.read-last{background:var(--gl);border:1px solid #b6e0c4;border-radius:9px;padding:8px 11px;font-size:11px;margin-top:8px;display:none}
+.unit-sel{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;margin-bottom:8px;color:var(--text)}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.thumb{width:46px;height:46px;border-radius:8px;object-fit:cover;border:1.5px solid var(--border)}
+.floor-sel{display:flex;gap:6px;margin:10px 0;overflow-x:auto}
+.floor-btn{padding:6px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--muted);white-space:nowrap;font-family:inherit}
+.floor-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{text-align:left;color:var(--muted);font-weight:700;font-size:9px;padding:6px 4px;border-bottom:2px solid var(--border)}
+.tbl td{padding:8px 4px;border-bottom:1px solid var(--border);vertical-align:top}
+.tbl tr:last-child td{border:none}.tbl .rm{font-weight:700}.tbl .nm{font-size:9px;color:var(--muted)}
+.cell-in{width:50px;padding:5px;border:1.5px solid var(--border);border-radius:7px;font-size:11px;font-family:inherit;text-align:right}
+.cell-in.filled{border-color:var(--green2);background:var(--gl)}
+.tot{font-weight:700;color:var(--primary);text-align:right;white-space:nowrap}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;font-weight:700}
+.b-paid{background:var(--gl);color:var(--green)}.b-pending{background:var(--goldl);color:var(--gold)}.b-vacant{background:#f0f0f8;color:#5050a0}.b-ready{background:var(--pl);color:var(--primary)}.b-overdue{background:var(--redl);color:var(--red)}.b-open{background:var(--ol);color:var(--orange)}
+.link{color:var(--primary);font-size:10px;cursor:pointer;font-weight:700;text-decoration:underline}
+.sum-bar{position:sticky;bottom:64px;background:var(--surface);border-top:2px solid var(--border);margin:0 -12px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;z-index:120}
+.sum-bar .big{font-size:17px;font-weight:700;color:var(--primary)}.sum-bar .lab{font-size:9px;color:var(--muted)}
+.room-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.room-cell{border-radius:8px;padding:7px 3px;text-align:center;cursor:pointer;border:1.5px solid var(--border);background:var(--surface)}
+.room-cell.occ{background:var(--pl);border-color:#90b8e0}.room-cell.od{background:var(--redl);border-color:#d08080}.room-cell.vac{background:#f8f8fc;opacity:.6}
+.room-n{font-size:12px;font-weight:700}.room-dot{width:6px;height:6px;border-radius:50%;margin:3px auto 0}
+.occ .room-dot{background:var(--primary)}.od .room-dot{background:var(--red)}.vac .room-dot{background:#c0c0d8}
+.li{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--border)}.li:last-child{border:none}
+.li-ic{font-size:18px}.li-info{flex:1}.li-t{font-size:13px;font-weight:600}.li-s{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4}
+.bar{height:9px;background:var(--border);border-radius:5px;overflow:hidden;margin:6px 0}
+.bar-fill{height:100%;background:var(--green2);border-radius:5px}
+.form-input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;margin-bottom:8px;color:var(--text)}
+textarea.form-input{min-height:70px;resize:vertical}
+.notice-card{border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:9px;padding:10px 12px;margin-bottom:8px;background:var(--surface)}
+.notice-card.livin{border-left-color:var(--orange)}
+.nc-top{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-bottom:4px}
+.nc-from{font-weight:700}
+.nc-body{font-size:11px;line-height:1.5}
+.inv-table{width:100%;border-collapse:collapse;margin-bottom:12px}
+.inv-table td{padding:9px 4px;font-size:12px;border-bottom:1px solid var(--border)}
+.inv-table tr:last-child td{border:none;font-weight:700;font-size:15px;color:var(--primary);padding-top:11px}
+.inv-table td:last-child{text-align:right;white-space:nowrap}.inv-table .en{font-size:9px;color:var(--muted)}
+.qr-amount{text-align:center;font-size:28px;font-weight:700;color:var(--primary)}
+.qr-cap{text-align:center;font-size:10px;color:var(--muted);margin-bottom:10px}
+.qr-center{text-align:center;margin-bottom:8px}.qr-box{display:inline-block;background:#fff;border:2px solid var(--border);border-radius:14px;padding:12px}
+.qr-pp{text-align:center;font-size:10px;color:var(--muted);margin-bottom:12px}.qr-pp b{color:#003d6b}
+.line-preview{background:var(--line);border-radius:12px;padding:12px;margin-bottom:10px;color:#fff}
+.line-header{font-size:12px;font-weight:700;margin-bottom:8px}
+.line-body{background:rgba(255,255,255,.16);border-radius:8px;padding:10px;font-size:11px;line-height:1.85;white-space:pre-line}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;align-items:flex-end;justify-content:center}.overlay.open{display:flex}
+.sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:18px 18px 30px;max-height:92vh;overflow-y:auto;animation:su .25s}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sh-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px}
+.sh-title{font-size:16px;font-weight:700;margin-bottom:3px}.sh-sub{font-size:10px;color:var(--muted);margin-bottom:14px}
+.sending{text-align:center;padding:10px 0}.send-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin:10px 0}.send-fill{height:100%;width:0;background:var(--line);transition:width .12s}
+#toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:#1a1a2a;color:#fff;padding:11px 22px;border-radius:22px;font-size:12px;font-weight:600;display:none;z-index:9999;max-width:90vw;text-align:center}
+.prod-note{background:#fffaf0;border:1px dashed var(--gold2);border-radius:11px;margin-bottom:12px;overflow:hidden}
+.prod-head{padding:10px 13px;font-size:11px;font-weight:700;color:var(--gold);cursor:pointer}
+.prod-body{padding:0 13px 12px;font-size:10px;color:#806020;line-height:1.7;display:none}.prod-body.open{display:block}
+.prod-body code{background:#f5edda;padding:1px 5px;border-radius:4px;font-size:9px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="login">
+  <div class="login-logo">🏢</div>
+  <div class="login-title">Seri 47 Residence</div>
+  <div class="login-sub">ระบบจัดการอัจฉริยะ / Smart Management<br><small style="opacity:.6">Powered by 🐝 BeeHome · v5</small></div>
+  <div class="role-grid">
+    <div class="role-btn" onclick="login('mg')"><div class="role-ic">🔑</div><div class="role-th">ผู้จัดการ</div><div class="role-en">Manager</div></div>
+    <div class="role-btn" onclick="login('own')"><div class="role-ic">👑</div><div class="role-th">เจ้าของ</div><div class="role-en">Owner</div></div>
+    <div class="role-btn" onclick="login('tn')"><div class="role-ic">🏠</div><div class="role-th">ผู้พัก</div><div class="role-en">Tenant</div></div>
+  </div>
+  <div class="login-note">เดโม: แตะบทบาทเพื่อเข้าระบบ / Demo — tap a role to enter</div>
+</div>
+
+<!-- TOPBAR -->
+<div id="topbar" class="topbar">
+  <div style="display:flex;align-items:center"><span class="topbar-badge" id="tb-badge">-</span><span class="topbar-title">Seri 47 Residence</span></div>
+  <span class="topbar-logout" onclick="logout()">ออก / Logout</span>
+</div>
+
+<!-- ════════ MANAGER ════════ -->
+<div id="sc-mg" class="screen">
+  <!-- HOME -->
+  <div class="pane active" id="mg-home">
+    <div class="stat-grid g3">
+      <div class="stat-card c"><div class="stat-val" style="color:var(--primary)" id="h-occ">0</div><div class="stat-lab">มีผู้พัก<br>Occupied</div></div>
+      <div class="stat-card c"><div class="stat-val" style="color:var(--green)" id="h-paid">0</div><div class="stat-lab">ชำระแล้ว<br>Paid</div></div>
+      <div class="stat-card c"><div class="stat-val" style="color:var(--red)" id="h-od">0</div><div class="stat-lab">ค้างชำระ<br>Overdue</div></div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--red)">
+      <div class="card-title">⚠️ Livin — ความเสี่ยง / Risk</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6">Livin ค้างโอนค่าเช่าให้เจ้าของเกิน 30 วัน · เปลี่ยนมาเก็บตรงผ่าน PromptPay + BeeHome เพื่อตัดตัวกลาง<br><span style="color:var(--text)">Livin overdue 30+ days remitting to owner → switch to direct PromptPay collection.</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🗓️ สัญญาใกล้หมด / Expiring leases</div>
+      <div class="li"><span class="li-ic">📋</span><div class="li-info"><div class="li-t">ห้อง 203 — Kim Sunhee</div><div class="li-s">หมดสัญญา / Expires 30 Jun 2026</div></div><span class="badge b-overdue">D-31</span></div>
+      <div class="li"><span class="li-ic">📋</span><div class="li-info"><div class="li-t">ห้อง 315 — Wang Wei</div><div class="li-s">หมดสัญญา / Expires 15 Jul 2026</div></div><span class="badge b-pending">D-46</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔧 งานซ่อมค้าง / Open repairs <span class="badge b-open" id="h-rep">0</span></div>
+      <div id="h-rep-list"></div>
+    </div>
+  </div>
+
+  <!-- BILLING -->
+  <div class="pane" id="mg-bill">
+    <div class="card">
+      <div class="card-title">⚡ ออกบิลอัจฉริยะ / Smart Billing</div>
+      <div class="card-sub">ถ่ายรูปมิเตอร์ → สร้างบิล → ส่ง LINE</div>
+      <div style="font-size:9px;color:var(--muted);margin-bottom:6px">อัตรา (฿/หน่วย) — แก้ได้ / Rates (editable). สำหรับการใช้ (หน่วย) แก้ที่ตารางแต่ละห้อง / per-room usage edited in table.</div>
+      <div class="rate-row">
+        <div class="rate-pill">⚡ ไฟ <input type="number" step="0.01" value="5.10" onchange="ELEC_RATE=+this.value||5.10;renderBill()"> ฿/u</div>
+        <div class="rate-pill">💧 น้ำ <input type="number" step="0.01" value="15" onchange="WATER_RATE=+this.value||15;renderBill()"> ฿/u</div>
+        <div class="rate-pill">🏛️ ส่วนกลาง <input type="number" value="0" onchange="SERVICE_FEE=+this.value||0;renderBill()"> ฿</div>
+      </div>
+      <div style="font-size:9px;color:var(--muted);margin-bottom:12px;line-height:1.5">📢 Livin ประกาศ: ไฟ ฿5.10 · น้ำ ฿15 (มิ.ย.) · ค่าส่วนกลาง ก.ค.</div>
+
+      <div class="ring-wrap">
+        <div class="ring"><svg width="54" height="54"><circle cx="27" cy="27" r="22" stroke="#e8eef7" stroke-width="6" fill="none"/><circle id="ringfg" cx="27" cy="27" r="22" stroke="#1a5fa8" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="138.2"/></svg><div class="ring-txt"><span id="ringn">0</span><small id="ringd">/ 0</small></div></div>
+        <div style="flex:1;font-size:11px;color:var(--muted);line-height:1.5">มิเตอร์กว้างเกินถ่ายรูปเดียว → <b>ถ่ายหลายรูป</b> AI อ่านทั้งหมดพร้อมกัน<br>Panel too wide for one shot → multi-photo, AI reads all at once.</div>
+      </div>
+      <button class="btn btn-primary" onclick="document.getElementById('multi-file').click()">📷 ถ่ายมิเตอร์ทั้งแผง (หลายรูป) — AI อ่านทั้งหมด<br><span style="font-size:9px;opacity:.85">Multi-photo whole panel · AI reads all</span></button>
+      <input type="file" id="multi-file" accept="image/*" multiple style="display:none" onchange="onMulti(event)">
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="document.getElementById('one-file').click()">📷 ทีละห้อง<br><span style="font-size:9px">Single room</span></button>
+        <button class="btn btn-outline" onclick="autoAll()">🧪 ทดสอบ (สุ่มเลข)<br><span style="font-size:9px">Test fill · random, not AI</span></button>
+      </div>
+      <select class="unit-sel" id="read-unit"></select>
+      <input type="file" id="one-file" accept="image/*" style="display:none" onchange="onOne(event)">
+      <div class="read-status" id="read-status">รอการตรวจมิเตอร์ / Awaiting meter reading…</div>
+      <div class="read-last" id="read-last"></div>
+      <div class="thumbs" id="thumbs"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 ตรวจสอบ & ส่ง / Review &amp; Send</div>
+      <div class="floor-sel" id="bill-floor"></div>
+      <table class="tbl"><thead><tr><th>ห้อง<br>Room</th><th>⚡ ไฟ·มิเตอร์<br>Elec</th><th>💧 น้ำ·มิเตอร์<br>Water</th><th style="text-align:right">รวม<br>Total</th><th></th></tr></thead><tbody id="bill-body"></tbody></table>
+      <div class="sum-bar"><div><div class="lab">ยอดรวม / Total</div><div class="big" id="bill-grand">฿0</div></div><div style="text-align:right"><div class="lab">ตรวจแล้ว / Metered</div><div class="big" id="bill-cnt" style="color:var(--green)">0</div></div></div>
+      <button class="btn btn-line" style="margin-top:10px" onclick="bulkSend()">📨 ส่งบิล + PromptPay QR ทุกห้อง / Send all via LINE</button>
+    </div>
+    <div class="prod-note"><div class="prod-head" onclick="this.nextElementSibling.classList.toggle('open')">⚙️ การเชื่อมต่อจริง / Production wiring ▾</div><div class="prod-body">① <code>readMeterBatch()</code> → Claude Vision (multi-photo, returns [{room,reading}]). 온라인 실제판독/오프라인 데모.<br>② <code>bulkSend()</code> → LINE Messaging API push.<br>③ <code>PP_ID</code> → 빌딩주 새 계좌 PromptPay. QR=EMVCo+CRC16 실제 스캔.<br>④ units[] → Firebase. 입금=PromptPay Ref(호실) 자동매칭.</div></div>
+  </div>
+
+  <!-- ROOMS -->
+  <div class="pane" id="mg-rooms">
+    <div class="card">
+      <div class="card-title">🗺️ ผังห้อง / Room map <span style="font-size:9px;color:var(--muted);font-weight:400">— แตะห้องเพื่อแก้ผู้พัก·ติดต่อ / tap a room</span></div>
+      <div class="floor-sel" id="rooms-floor"></div>
+      <div class="room-grid" id="rooms-grid"></div>
+      <div style="display:flex;gap:12px;margin-top:10px;font-size:9px;color:var(--muted)"><span>🔵 มีผู้พัก/Occupied</span><span>🔴 ค้าง/Overdue</span><span>⚪ ว่าง/Vacant</span></div>
+    </div>
+  </div>
+
+  <!-- REPAIRS -->
+  <div class="pane" id="mg-rep">
+    <div class="card"><div class="card-title">🔧 แจ้งซ่อม / Repair requests</div><div id="rep-list"></div></div>
+  </div>
+
+  <!-- NOTICES -->
+  <div class="pane" id="mg-notice">
+    <div class="card">
+      <div class="card-title">📢 ส่งประกาศ / Broadcast notice</div>
+      <div class="card-sub">ส่งถึงผู้พักที่เชื่อม LINE (@seri47) / Push to tenants linked on LINE</div>
+      <textarea class="form-input" id="notice-text" placeholder="พิมพ์ข้อความประกาศ… / Type your announcement…"></textarea>
+      <button class="btn btn-line" onclick="sendNotice()">📨 ส่งถึง <span id="notice-n">87</span> ห้อง / Broadcast</button>
+    </div>
+    <div class="card"><div class="card-title">🕓 ประวัติ / History</div><div id="notice-hist"></div></div>
+  </div>
+
+  <div class="bnav" id="nav-mg">
+    <button class="bnav-btn active" onclick="tab('mg','home',this)"><div class="bnav-ic">🏠</div><span class="bnav-l">หน้าหลัก</span></button>
+    <button class="bnav-btn" onclick="tab('mg','bill',this)"><div class="bnav-ic">🧾</div><span class="bnav-l">บิล</span></button>
+    <button class="bnav-btn" onclick="tab('mg','rooms',this)"><div class="bnav-ic">🗺️</div><span class="bnav-l">ห้อง</span></button>
+    <button class="bnav-btn" onclick="tab('mg','rep',this)"><div class="bnav-ic">🔧</div><span class="bnav-l">ซ่อม</span></button>
+    <button class="bnav-btn" onclick="tab('mg','notice',this)"><div class="bnav-ic">📢</div><span class="bnav-l">แจ้ง</span></button>
+  </div>
+</div>
+
+<!-- ════════ OWNER ════════ -->
+<div id="sc-own" class="screen">
+  <div class="pane active" id="own-collect">
+    <div class="card" style="border-left:3px solid var(--green)">
+      <div class="card-title">💰 การเก็บเงินสด — เรียลไทม์ / Live collection</div>
+      <div class="card-sub">ทุกบาทเข้าตรงบัญชีคุณ ไม่ผ่านตัวกลาง / Every baht direct to you — no middleman</div>
+      <div class="stat-grid g3">
+        <div class="stat-card c"><div class="stat-val" style="color:var(--primary)" id="o-billed">฿0</div><div class="stat-lab">ออกบิล<br>Billed</div></div>
+        <div class="stat-card c"><div class="stat-val" style="color:var(--green)" id="o-recv">฿0</div><div class="stat-lab">รับแล้ว<br>Received</div></div>
+        <div class="stat-card c"><div class="stat-val" style="color:var(--red)" id="o-out">฿0</div><div class="stat-lab">ค้าง<br>Outstanding</div></div>
+      </div>
+      <div class="bar"><div class="bar-fill" id="o-bar" style="width:0%"></div></div>
+      <div style="font-size:10px;color:var(--muted);text-align:right" id="o-pct">0% เก็บได้ / collected</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--primary)">
+      <div class="card-title">💳 ยืนยันการชำระจาก SMS / Auto-match bank SMS</div>
+      <div class="card-sub">วาง SMS เงินเข้าจากธนาคาร → จับคู่ห้องอัตโนมัติด้วยเลขสตางค์ / Paste bank SMS; matched by satang code (.xx)</div>
+      <textarea class="form-input" id="sms-in" placeholder="วางข้อความ SMS ที่นี่… / Paste deposit SMS here…" style="min-height:70px"></textarea>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" style="flex:1" onclick="smsSample()">📋 ตัวอย่าง / Sample</button>
+        <button class="btn btn-primary" style="flex:2" onclick="parseSMS()">🔎 จับคู่อัตโนมัติ / Match</button>
+      </div>
+      <div class="read-status" id="sms-res" style="margin-top:8px;display:none"></div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--orange)">
+      <div class="card-title">🆚 BeeHome vs Livin</div>
+      <table class="tbl"><tr><td></td><td style="font-weight:700;color:var(--orange)">Livin</td><td style="font-weight:700;color:var(--green)">BeeHome</td></tr>
+      <tr><td>ค่าธรรมเนียม/Fee</td><td>20%</td><td>~0% (PromptPay)</td></tr>
+      <tr><td>โอนเข้าเจ้าของ/Remit</td><td>ค้าง 30+ วัน</td><td>ทันที/instant</td></tr>
+      <tr><td>โปร่งใส/Transparency</td><td>ไม่มี/none</td><td>เรียลไทม์/live</td></tr></table>
+    </div>
+    <div class="card"><div class="card-title">🔴 ค้างชำระ / Outstanding rooms</div><div id="o-odlist"></div></div>
+  </div>
+  <div class="pane" id="own-report">
+    <div class="card"><div class="card-title">📋 สรุปรายเดือน / Monthly summary</div>
+      <div class="li"><span class="li-ic">📅</span><div class="li-info"><div class="li-t">มิถุนายน / June 2026</div><div class="li-s" id="r-jun">—</div></div></div>
+      <div class="li"><span class="li-ic">📅</span><div class="li-info"><div class="li-t">พฤษภาคม / May 2026</div><div class="li-s">ออกบิล ฿428,400 · รับ ฿410,200 (Livin ค้างโอน)</div></div></div>
+      <div class="li"><span class="li-ic">📈</span><div class="li-info"><div class="li-t">อัตราเก็บได้ / Collection rate</div><div class="li-s" id="r-rate">—</div></div></div>
+    </div>
+    <div class="card" style="background:var(--gl);border-color:#b6e0c4"><div style="font-size:11px;color:var(--green);line-height:1.6">✅ เปลี่ยนมา BeeHome: ประหยัดค่าธรรมเนียม Livin 20% ≈ <b id="r-save">฿0</b>/เดือน + เงินเข้าทันที<br>Switch saves ~20% Livin fee + instant settlement.</div></div>
+  </div>
+  <div class="bnav" id="nav-own">
+    <button class="bnav-btn active" onclick="tab('own','collect',this)"><div class="bnav-ic">📊</div><span class="bnav-l">รายรับ</span></button>
+    <button class="bnav-btn" onclick="tab('own','report',this)"><div class="bnav-ic">📋</div><span class="bnav-l">รายงาน</span></button>
+  </div>
+</div>
+
+<!-- ════════ TENANT ════════ -->
+<div id="sc-tn" class="screen">
+  <div class="pane active" id="tn-bill"><div class="card"><div class="card-title">🧾 บิลของฉัน / My invoice</div><div class="card-sub" id="tn-room">—</div><table class="inv-table" id="tn-calc"></table></div></div>
+  <div class="pane" id="tn-pay"><div class="card"><div class="card-title">💳 ชำระเงิน / Pay</div>
+    <div class="qr-amount" id="tn-amt">฿0</div><div class="qr-cap">สแกน PromptPay เพื่อชำระ / Scan PromptPay to pay</div>
+    <div class="qr-center"><div class="qr-box" id="tn-qr"></div></div>
+    <div class="qr-pp">🔵 PromptPay · <b id="tn-pp"></b> · Ref: <b id="tn-ref"></b></div>
+    <button class="btn btn-green" onclick="toast('ขอบคุณค่ะ — บันทึกการชำระแล้ว / Payment recorded ✅')">✅ ฉันชำระแล้ว / I have paid</button>
+  </div></div>
+  <div class="pane" id="tn-rep"><div class="card"><div class="card-title">🔧 แจ้งซ่อม / Request repair</div>
+    <select class="form-input" id="tn-rep-type"><option>🚰 น้ำ/ประปา · Plumbing</option><option>⚡ ไฟฟ้า · Electrical</option><option>❄️ แอร์ · Air-con</option><option>🚪 ประตู/กุญแจ · Door/Lock</option><option>อื่นๆ · Other</option></select>
+    <textarea class="form-input" id="tn-rep-text" placeholder="อธิบายปัญหา… / Describe the issue…"></textarea>
+    <button class="btn btn-primary" onclick="if(document.getElementById('tn-rep-text').value){toast('ส่งคำขอแล้ว / Request sent ✅');document.getElementById('tn-rep-text').value=''}else toast('กรุณากรอกรายละเอียด')">📨 ส่งคำขอ / Submit</button>
+  </div></div>
+  <div class="pane" id="tn-notice"><div class="card"><div class="card-title">📢 ประกาศ / Announcements</div><div id="tn-notice-list"></div></div></div>
+  <div class="bnav" id="nav-tn">
+    <button class="bnav-btn active" onclick="tab('tn','bill',this)"><div class="bnav-ic">🧾</div><span class="bnav-l">บิล</span></button>
+    <button class="bnav-btn" onclick="tab('tn','pay',this)"><div class="bnav-ic">💳</div><span class="bnav-l">ชำระ</span></button>
+    <button class="bnav-btn" onclick="tab('tn','rep',this)"><div class="bnav-ic">🔧</div><span class="bnav-l">ซ่อม</span></button>
+    <button class="bnav-btn" onclick="tab('tn','notice',this)"><div class="bnav-ic">📢</div><span class="bnav-l">ประกาศ</span></button>
+  </div>
+</div>
+
+<!-- invoice sheet -->
+<div class="overlay" id="ov" onclick="if(event.target===this)closeSheet()"><div class="sheet" id="sheet">
+  <div class="sh-handle"></div><div class="sh-title" id="sh-room">Room</div><div class="sh-sub" id="sh-sub"></div>
+  <table class="inv-table" id="sh-calc"></table>
+  <div class="qr-amount" id="sh-amt">฿0</div><div class="qr-cap">สแกน PromptPay / Scan to pay</div>
+  <div class="qr-center"><div class="qr-box" id="sh-qr"></div></div>
+  <div class="qr-pp">🔵 PromptPay · <b id="sh-pp"></b> · Ref: <b id="sh-ref"></b></div>
+  <div class="line-preview"><div class="line-header">💬 LINE</div><div class="line-body" id="sh-line"></div></div>
+  <button class="btn btn-line" onclick="closeSheet();toast('ส่งแล้ว / Sent ✅')">📨 ส่งห้องนี้ / Send this room</button>
+  <button class="btn btn-outline" onclick="closeSheet()">ปิด / Close</button>
+</div></div>
+<div id="pw-ov" style="display:none;position:fixed;inset:0;background:rgba(10,34,64,.92);z-index:10000;align-items:center;justify-content:center;flex-direction:column;padding:24px">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:320px;text-align:center;font-family:'Sarabun',sans-serif">
+    <div style="font-size:34px">🔒</div>
+    <div id="pw-label" style="font-weight:700;margin:6px 0 14px;color:#1e2535"></div>
+    <input id="pw-input" type="password" autocomplete="off" style="width:100%;padding:12px;border:1px solid #dde3ee;border-radius:10px;font-size:16px;text-align:center;box-sizing:border-box" placeholder="รหัสผ่าน / password" onkeydown="if(event.key==='Enter')pwSubmit()">
+    <div id="pw-err" style="display:none;color:#c0321a;font-size:12px;margin-top:8px">❌ รหัสผ่านไม่ถูกต้อง / Wrong password</div>
+    <button onclick="pwSubmit()" style="margin-top:14px;width:100%;padding:12px;border:none;border-radius:10px;background:#1a5fa8;color:#fff;font-weight:700;font-size:15px;cursor:pointer">เข้าสู่ระบบ / Enter</button>
+    <button onclick="document.getElementById('pw-ov').style.display='none'" style="margin-top:8px;width:100%;padding:10px;border:none;background:none;color:#7080a0;font-size:13px;cursor:pointer">ยกเลิก / Cancel</button>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+let ELEC_RATE=5.10, WATER_RATE=15, SERVICE_FEE=0;
+const PP_ID="0812345678"; // ← 빌딩주 새 계좌 PromptPay 번호
+/* ★Vision 프록시: Cloudflare Worker 배포 후 URL 입력. 비우면(데모) 자동으로 랜덤 폴백. */
+const VISION_PROXY="https://seri47-vision.jww8559.workers.dev"; // Cloudflare Worker 프록시 (2026-06-01 연결)
+const NAMES=["Somchai P.","Wang Wei","Kim Sunhee","Lee Jaeho","Nguyen Anh","Suda K.","Chen Lin","Tanaka Y.","Aphirak S.","Zhang Hua","Park Min","Niran T.","Li Na","Somsak R.","Wu Fang","Pim W.","Zhao Lei","Aroon P.","Yuki M.","Kanya S."];
+let units=[];
+/* ★실제 호실 구성: 총 96호실. 층별 호실 수를 실제에 맞게 수정하세요.
+   예) 5층 16호실이면 {1:20,2:20,3:20,4:20,5:16}=96. 특정 번호가 비면 EXCLUDE에 추가. */
+const FLOOR_ROOMS={1:20,2:20,3:20,4:20,5:16};
+const EXCLUDE=[]; // 존재하지 않는 호실 id 예: [413,512]
+function buildUnits(){units=[];for(let f=1;f<=5;f++)for(let r=1;r<=(FLOOR_ROOMS[f]||0);r++){const id=f*100+r;if(EXCLUDE.includes(id))continue;const vac=(id*7%100)<13;const big=r%20===0;
+  const prevTotal=vac?0:(big?4200:3800)+Math.round(((90+id*13%80)*5.10+(2+id%5)*15));
+  units.push({id,floor:f,tenant:vac?null:NAMES[(id+f)%NAMES.length],rent:vac?0:(big?4200:3800),
+    ePrev:vac?0:1500+(id*13%900),eCurr:null,wPrev:vac?0:500+(id*7%280),wCurr:null,
+    vac,prevTotal,paid:vac?false:(id*3%100<72),sent:false,
+    phone:vac?'':'08'+String(1000000+(id*131)%8999999),lineLinked:vac?false:(id*5%100<82)});}}
+buildUnits();
+window.units=units;
+window.seri47Rerender=function(){if(role==='mg')renderMg();else if(role==='own')renderOwn();else if(role==='tn')renderTn();};
+function persist(){try{window.seri47Persist&&window.seri47Persist();}catch(e){}}
+const occ=()=>units.filter(u=>!u.vac);
+const metered=()=>occ().filter(u=>u.eCurr!=null);
+const eU=u=>(u.eCurr!=null&&u.ePrev!=null)?Math.max(0,u.eCurr-u.ePrev):0;
+const wU=u=>(u.wCurr!=null&&u.wPrev!=null)?Math.max(0,u.wCurr-u.wPrev):0;
+const totalOf=u=>u.rent+eU(u)*ELEC_RATE+wU(u)*WATER_RATE+(SERVICE_FEE||0);
+const fmt=n=>"฿"+Number(n).toLocaleString(undefined,{maximumFractionDigits:2});
+const fmt2=n=>"฿"+Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+/* ─── 호실별 사탕 끝자리(.satang) 매칭 키: (층-1)*20+(호-1) = 0..99 유일 ─── */
+const payCode=u=>((u.floor-1)*20+(u.id%100))%100;
+function payAmtOf(bill,u){let a=Math.floor(bill)+payCode(u)/100;if(a>=bill)a-=1;return Math.max(0,a);}
+const payAmt=u=>payAmtOf(u.prevTotal,u);
+function smsSample(){const u=occ().find(x=>!x.paid);if(!u){toast('ไม่มีห้องค้าง / No outstanding');return;}
+  document.getElementById('sms-in').value="KBANK แจ้งเงินเข้า: บัญชี xxx-x-x1234-5 รับโอน "+fmt2(payAmt(u)).slice(1)+" บาท 31/05/26 14:22 คงเหลือ 1,204,556.00 บาท";}
+function parseSMS(){
+  const t=document.getElementById('sms-in').value||"";
+  const nums=(t.match(/[\d,]+\.\d{2}/g)||[]).map(s=>parseFloat(s.replace(/,/g,'')));
+  const res=document.getElementById('sms-res');res.style.display='block';
+  let matched=[];
+  nums.forEach(amt=>{const u=occ().find(x=>!x.paid&&Math.round(payAmt(x)*100)===Math.round(amt*100));if(u){u.paid=true;matched.push(u);}});
+  if(matched.length){renderOwn();res.className='read-status live';
+    res.innerHTML="✅ จับคู่อัตโนมัติ / Auto-matched: "+matched.map(u=>"ห้อง "+u.id+" ("+u.tenant+") "+fmt2(payAmt(u))).join(" · ");
+    document.getElementById('sms-in').value="";toast("✅ "+matched.length+" ห้อง บันทึกชำระ / recorded");persist();}
+  else{res.className='read-status demo';res.textContent="⚠️ ไม่พบยอดตรงกับห้องค้าง — ตรวจเลขสตางค์ (.xx) / No outstanding room matches the amount's satang code";}
+}
+
+const REPAIRS=[{rm:108,t:"แอร์ไม่เย็น / Air-con not cooling",who:"Suda K.",st:"open"},{rm:214,t:"ก๊อกน้ำรั่ว / Leaking faucet",who:"Chen Lin",st:"progress"},{rm:401,t:"ไฟห้องน้ำเสีย / Bathroom light out",who:"Park Min",st:"open"},{rm:512,t:"ประตูล็อกไม่ได้ / Door won't lock",who:"Yuki M.",st:"open"}];
+let NOTICES=[
+ {from:"ผู้จัดการ / Manager",date:"26 May 2026",livin:false,body:"แจ้งระงับการชำระค่าเช่าเดือนมิถุนายนชั่วคราว — Livin ค้างโอนเงินให้เจ้าของเกิน 30 วัน เจ้าของจะแจ้งบัญชีใหม่หลัง 1 มิ.ย. / Suspend June rent until Jun 1; new account to follow."},
+ {from:"Livin Thailand",date:"24 May 2026",livin:true,body:"ปรับลดค่าน้ำ ฿15/หน่วย · ค่าไฟ ฿5.10/หน่วย (เริ่มบิล มิ.ย.) · ค่าส่วนกลางเริ่ม ก.ค. / Water ฿15, Electricity ฿5.10 from June; service fee from July."}
+];
+const TENANT_ID=312;
+
+/* ─── shell ─── */
+let role=null,curFloorB=1,curFloorR=1;
+async function sha256hex(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+const ROLE_PW={mg:"d1b79c5b436665ba286223e6bec412d24775a06d7dd1d23c39d44b0f67b4f825",own:"996a7d3104bb209d3028290cdb52e773735891a98db4da1e6ebeae2bf28715d7"};
+let pendingRole=null;
+function login(r){if(ROLE_PW[r]){pendingRole=r;document.getElementById('pw-label').textContent=(r==='mg'?'รหัสผ่านผู้จัดการ / Manager':'รหัสผ่านเจ้าของ / Owner');document.getElementById('pw-input').value='';document.getElementById('pw-err').style.display='none';document.getElementById('pw-ov').style.display='flex';setTimeout(function(){document.getElementById('pw-input').focus();},60);}else doLogin(r);}
+async function pwSubmit(){const r=pendingRole;if(!r)return;const v=document.getElementById('pw-input').value;if((await sha256hex(v))===ROLE_PW[r]){document.getElementById('pw-ov').style.display='none';doLogin(r);}else{document.getElementById('pw-err').style.display='block';}}
+function doLogin(r){role=r;document.getElementById('login').style.display='none';
+  document.getElementById('topbar').classList.add('show');
+  document.getElementById('tb-badge').textContent=r==='mg'?'🔑 Manager':r==='own'?'👑 Owner':'🏠 Tenant';
+  ['mg','own','tn'].forEach(x=>{document.getElementById('sc-'+x).classList.toggle('active',x===r);document.getElementById('nav-'+x).classList.toggle('show',x===r)});
+  if(r==='mg')renderMg();else if(r==='own')renderOwn();else renderTn();
+}
+function logout(){role=null;document.getElementById('login').style.display='flex';document.getElementById('topbar').classList.remove('show');
+  ['mg','own','tn'].forEach(x=>{document.getElementById('sc-'+x).classList.remove('active');document.getElementById('nav-'+x).classList.remove('show')});}
+function tab(r,t,btn){document.querySelectorAll('#sc-'+r+' .pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById(r+'-'+t).classList.add('active');
+  btn.parentElement.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+
+/* ─── manager ─── */
+function renderMg(){renderHome();renderBill();renderRooms();renderRep();renderNotices();document.getElementById('notice-n').textContent=occ().filter(u=>u.lineLinked).length;}
+function renderHome(){
+  document.getElementById('h-occ').textContent=occ().length;
+  document.getElementById('h-paid').textContent=occ().filter(u=>u.paid).length;
+  document.getElementById('h-od').textContent=occ().filter(u=>!u.paid).length;
+  document.getElementById('h-rep').textContent=REPAIRS.filter(r=>r.st!=='done').length;
+  document.getElementById('h-rep-list').innerHTML=REPAIRS.slice(0,3).map(r=>`<div class="li"><span class="li-ic">🔧</span><div class="li-info"><div class="li-t">ห้อง ${r.rm} — ${r.t}</div><div class="li-s">${r.who}</div></div><span class="badge ${r.st==='open'?'b-open':'b-ready'}">${r.st}</span></div>`).join("");
+}
+function ringSet(){const n=metered().length,t=occ().length;document.getElementById('ringn').textContent=n;document.getElementById('ringd').textContent="/ "+t;document.getElementById('ringfg').style.strokeDashoffset=138.2*(1-n/(t||1));}
+function fillSel(){const s=document.getElementById('read-unit');s.innerHTML=occ().map(u=>`<option value="${u.id}">ห้อง ${u.id} · ${u.tenant} ${u.eCurr!=null?'✅':''}</option>`).join("");const nx=occ().find(u=>u.eCurr==null);if(nx)s.value=nx.id;}
+function renderBill(){
+  document.getElementById('bill-floor').innerHTML=[1,2,3,4,5].map(f=>`<button class="floor-btn ${f===curFloorB?'active':''}" onclick="curFloorB=${f};renderBill()">ชั้น ${f}</button>`).join("");
+  const rows=units.filter(u=>u.floor===curFloorB).map(u=>{
+    if(u.vac)return `<tr style="opacity:.5"><td class="rm">${u.id}</td><td colspan="3" class="nm">ว่าง/vacant</td><td><span class="badge b-vacant">—</span></td></tr>`;
+    const e=eU(u),w=wU(u);
+    return `<tr><td><div class="rm">${u.id}</div><div class="nm">${u.tenant}</div></td>
+      <td><input class="cell-in ${u.eCurr!=null?'filled':''}" type="number" value="${u.eCurr??''}" placeholder="ก่อน ${u.ePrev}" oninput="setMeter(${u.id},'e',this.value,this)"><div class="nm" id="eu-${u.id}" style="text-align:right;margin-top:2px">${e?e+'u·'+fmt(e*ELEC_RATE):'—'}</div></td>
+      <td><input class="cell-in ${u.wCurr!=null?'filled':''}" type="number" value="${u.wCurr??''}" placeholder="ก่อน ${u.wPrev}" oninput="setMeter(${u.id},'w',this.value,this)"><div class="nm" id="wu-${u.id}" style="text-align:right;margin-top:2px">${w?w+'u·'+fmt(w*WATER_RATE):'—'}</div></td>
+      <td class="tot" id="tot-${u.id}">${fmt(totalOf(u))}</td>
+      <td><span class="link" onclick="openSheet(${u.id})">ดู</span><br><span class="badge ${u.sent?'b-paid':u.eCurr!=null?'b-ready':'b-pending'}">${u.sent?'ส่ง':u.eCurr!=null?'พร้อม':'รอ'}</span></td></tr>`;
+  }).join("");
+  document.getElementById('bill-body').innerHTML=rows;
+  document.getElementById('bill-grand').textContent=fmt(occ().reduce((s,u)=>s+totalOf(u),0));
+  document.getElementById('bill-cnt').textContent=metered().length;
+  ringSet();fillSel();
+}
+function setMeter(id,k,v,el){const u=units.find(x=>x.id===id);u[k==='e'?'eCurr':'wCurr']=v===''?null:parseInt(v);if(el)el.classList.toggle('filled',u[k==='e'?'eCurr':'wCurr']!=null);
+  const e=document.getElementById('eu-'+id),w=document.getElementById('wu-'+id),t=document.getElementById('tot-'+id);
+  if(e){const x=eU(u);e.textContent=x?x+'u·'+fmt(x*ELEC_RATE):'—';}if(w){const x=wU(u);w.textContent=x?x+'u·'+fmt(x*WATER_RATE):'—';}if(t)t.textContent=fmt(totalOf(u));
+  document.getElementById('bill-grand').textContent=fmt(occ().reduce((s,u)=>s+totalOf(u),0));
+  document.getElementById('bill-cnt').textContent=metered().length;ringSet();persist();}
+function setRead(m,c){const e=document.getElementById('read-status');e.textContent=m;e.className="read-status "+(c||"");}
+function toB64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f)});}
+async function visionMeters(file,multi){
+  if(!VISION_PROXY)throw new Error("VISION_PROXY 미설정");
+  const b64=await toB64(file),mime=file.type||'image/jpeg';
+  const prompt=multi?"This image shows an electricity meter panel with one or more meters. For EACH meter, read its room/unit number label and its cumulative kWh reading. Reply ONLY a JSON array, no other text, no markdown: [{\"room\": <integer>, \"reading\": <integer>}]. If a meter has no room label use null for room.":"This is one electricity meter. Read the cumulative kWh integer. Reply ONLY JSON, no markdown: {\"reading\": <integer>}";
+  const res=await fetch(VISION_PROXY,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:4096,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:mime,data:b64}},{type:"text",text:prompt}]}]})});
+  const raw=await res.text();
+  if(!res.ok)throw new Error("API "+res.status+": "+raw.slice(0,100));
+  let d; try{d=JSON.parse(raw);}catch(e){throw new Error("응답 파싱 실패");}
+  if(d.error)throw new Error((d.error.message||"API error").slice(0,100));
+  let txt=((d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("")).replace(/```json/gi,"").replace(/```/g,"").trim();
+  const o=multi?"[":"{",cl=multi?"]":"}";const s=txt.indexOf(o),e=txt.lastIndexOf(cl);
+  if(s<0||e<s)throw new Error("JSON 없음: "+txt.slice(0,60));
+  return JSON.parse(txt.slice(s,e+1));
+}
+function showThumbs(files){document.getElementById('thumbs').innerHTML="";[...files].forEach(f=>{const img=document.createElement('img');img.className='thumb';img.src=URL.createObjectURL(f);document.getElementById('thumbs').appendChild(img);});}
+async function onMulti(ev){const files=[...ev.target.files];if(!files.length)return;ev.target.value="";showThumbs(files);
+  setRead("🤖 Claude อ่าน "+files.length+" รูป… / reading "+files.length+" photos…");
+  let applied=0,readCount=0,err=null;
+  for(const f of files){
+    try{const arr=await visionMeters(f,true);
+      if(Array.isArray(arr)){arr.forEach(o=>{readCount++;const rm=parseInt(o.room,10);const rd=parseInt(o.reading,10);const u=units.find(x=>x.id===rm&&!x.vac);if(u&&!isNaN(rd)){u.eCurr=rd;applied++;}});}
+    }catch(e){err=e.message;}
+  }
+  if(err){setRead("⚠️ AI 오류 / error: "+err,"demo");}
+  else if(applied===0&&readCount>0){setRead("⚠️ "+readCount+"개 읽었으나 일치 호실 없음 — 호실번호 확인 / read but no matching room","demo");}
+  else if(applied===0){setRead("⚠️ 판독값 없음 / nothing read","demo");}
+  else{setRead("✅ AI 읽음 "+applied+" 호실 / read "+applied+" rooms","live");}
+  renderBill();persist();toast(applied?("🤖 AI: "+applied+" ห้อง"):"⚠️ "+(err?"오류":"불일치"));}
+async function onOne(ev){const f=ev.target.files[0];if(!f)return;ev.target.value="";showThumbs([f]);
+  const id=+document.getElementById('read-unit').value,u=units.find(x=>x.id===id);
+  setRead("🤖 อ่านมิเตอร์ห้อง "+id+"…");
+  let val=null,err=null;
+  try{const r=await visionMeters(f,false);const rd=r?parseInt(r.reading,10):NaN;if(!isNaN(rd))val=rd;}catch(e){err=e.message;}
+  if(err){setRead("⚠️ AI 오류 / error: "+err,"demo");renderBill();persist();return;}
+  if(val==null){setRead("⚠️ 판독 실패 (숫자 못 읽음) / could not read","demo");return;}
+  u.eCurr=val;setRead("✅ AI อ่านได้ / read OK","live");
+  const l=document.getElementById('read-last');l.style.display="block";l.innerHTML=`ห้อง <b>${id}</b> → มิเตอร์ <b>${val}</b> (${eU(u)} หน่วย · ${fmt(eU(u)*ELEC_RATE)})`;
+  renderBill();persist();toast("🤖 ห้อง "+id);}
+function autoAll(){occ().forEach(u=>{if(u.eCurr==null)u.eCurr=u.ePrev+(35+Math.floor(Math.random()*95));if(u.wCurr==null)u.wCurr=u.wPrev+(1+Math.floor(Math.random()*6));});setRead("⚡ เติมเดโมครบทุกห้อง / demo filled all","demo");renderBill();persist();toast("⚡ เดโม "+occ().length+" ห้อง");}
+function renderRooms(){
+  document.getElementById('rooms-floor').innerHTML=[1,2,3,4,5].map(f=>`<button class="floor-btn ${f===curFloorR?'active':''}" onclick="curFloorR=${f};renderRooms()">ชั้น ${f}</button>`).join("");
+  document.getElementById('rooms-grid').innerHTML=units.filter(u=>u.floor===curFloorR).map(u=>{const c=u.vac?'vac':(!u.paid?'od':'occ');return `<div class="room-cell ${c}" onclick="${u.vac?'':'openTenant('+u.id+')'}"><div class="room-n">${u.id}</div><div class="room-dot"></div></div>`;}).join("");
+}
+function renderRep(){document.getElementById('rep-list').innerHTML=REPAIRS.map((r,i)=>`<div class="li"><span class="li-ic">🔧</span><div class="li-info"><div class="li-t">ห้อง ${r.rm} — ${r.t}</div><div class="li-s">${r.who}</div></div><div style="text-align:right"><span class="badge ${r.st==='open'?'b-open':r.st==='progress'?'b-ready':'b-paid'}">${r.st}</span><br><button class="btn-sm btn-sm-out" style="margin-top:4px" onclick="REPAIRS[${i}].st='done';renderRep();renderHome();toast('ปิดงานแล้ว / Resolved ✅')">เสร็จ/Done</button></div></div>`).join("");}
+function renderNotices(){document.getElementById('notice-hist').innerHTML=NOTICES.map(n=>`<div class="notice-card ${n.livin?'livin':''}"><div class="nc-top"><span class="nc-from">${n.from}</span><span>${n.date}</span></div><div class="nc-body">${n.body}</div></div>`).join("");}
+function sendNotice(){const t=document.getElementById('notice-text').value.trim();if(!t){toast('กรุณาพิมพ์ข้อความ');return;}
+  NOTICES.unshift({from:"ผู้จัดการ / Manager",date:"30 May 2026",livin:false,body:t});document.getElementById('notice-text').value="";renderNotices();renderTnNotice();toast("📨 ส่งถึง "+occ().filter(u=>u.lineLinked).length+" ห้อง (เชื่อม LINE) / Broadcast ✅");}
+
+/* ─── owner ─── */
+function renderOwn(){
+  const billed=occ().reduce((s,u)=>s+u.prevTotal,0),recv=occ().filter(u=>u.paid).reduce((s,u)=>s+u.prevTotal,0),out=billed-recv;
+  document.getElementById('o-billed').textContent=fmt(billed);document.getElementById('o-recv').textContent=fmt(recv);document.getElementById('o-out').textContent=fmt(out);
+  const pct=Math.round(recv/billed*100);document.getElementById('o-bar').style.width=pct+"%";document.getElementById('o-pct').textContent=pct+"% เก็บได้ / collected";
+  document.getElementById('o-odlist').innerHTML=occ().filter(u=>!u.paid).slice(0,8).map(u=>`<div class="li"><span class="li-ic">🔴</span><div class="li-info"><div class="li-t">ห้อง ${u.id} — ${u.tenant}</div><div class="li-s">ค้าง / Outstanding <b>${fmt2(payAmt(u))}</b> <span style="color:var(--primary)">·.${String(payCode(u)).padStart(2,'0')}</span></div></div><button class="btn-sm btn-sm-out" onclick="toast('ส่งทวงถาม / Reminder sent ✅')">ทวง</button></div>`).join("");
+  document.getElementById('r-jun').textContent="ออกบิล "+fmt(billed)+" · รับ "+fmt(recv);
+  document.getElementById('r-rate').textContent=pct+"% ("+occ().filter(u=>u.paid).length+"/"+occ().length+" ห้อง)";
+  document.getElementById('r-save').textContent=fmt(Math.round(billed*0.2));
+}
+
+/* ─── tenant ─── */
+function renderTn(){const u=units.find(x=>x.id===TENANT_ID);if(u.eCurr==null){u.eCurr=u.ePrev+128;u.wCurr=u.wPrev+3;}
+  const e=eU(u),w=wU(u),tot=totalOf(u);
+  document.getElementById('tn-room').textContent="ห้อง/Room "+u.id+" · "+u.tenant+" · มิ.ย./Jun 2026";
+  document.getElementById('tn-calc').innerHTML=`<tr><td>ค่าเช่า <span class="en">Rental Fee</span></td><td>${fmt(u.rent)}</td></tr><tr><td>ค่าไฟ <span class="en">Electricity (${u.ePrev} ${u.eCurr}) ${e}u×฿${ELEC_RATE}</span></td><td>${fmt(e*ELEC_RATE)}</td></tr><tr><td>ค่าน้ำ <span class="en">Water (${u.wPrev} ${u.wCurr}) ${w}u×฿${WATER_RATE}</span></td><td>${fmt(w*WATER_RATE)}</td></tr><tr><td>รวม / Total</td><td>${fmt(tot)}</td></tr>`;
+  const pay=payAmtOf(tot,u);
+  document.getElementById('tn-amt').innerHTML=fmt2(pay)+' <span style="font-size:11px;color:var(--muted)">(บิล '+fmt(tot)+' · ปัดเศษให้ / rounded down)</span>';document.getElementById('tn-pp').textContent=PP_ID;document.getElementById('tn-ref').textContent="SR47-"+u.id;
+  document.getElementById('tn-qr').innerHTML="";new QRCode(document.getElementById('tn-qr'),{text:ppPayload(pay),width:150,height:150,correctLevel:QRCode.CorrectLevel.M});
+  renderTnNotice();}
+function renderTnNotice(){const el=document.getElementById('tn-notice-list');if(el)el.innerHTML=NOTICES.map(n=>`<div class="notice-card ${n.livin?'livin':''}"><div class="nc-top"><span class="nc-from">${n.from}</span><span>${n.date}</span></div><div class="nc-body">${n.body}</div></div>`).join("");}
+
+/* ─── PromptPay QR ─── */
+function tlv(i,v){return i+String(v.length).padStart(2,"0")+v;}
+function crc16(s){let c=0xFFFF;for(let i=0;i<s.length;i++){c^=s.charCodeAt(i)<<8;for(let j=0;j<8;j++){c=(c&0x8000)?((c<<1)^0x1021):(c<<1);c&=0xFFFF;}}return c.toString(16).toUpperCase().padStart(4,"0");}
+function ppPayload(a){const m=tlv("00","A000000677010111")+tlv("01","0066"+PP_ID.replace(/\D/g,"").replace(/^0/,""));let p=tlv("00","01")+tlv("01","12")+tlv("29",m)+tlv("53","764")+tlv("54",Number(a).toFixed(2))+tlv("58","TH");p+="6304";return p+crc16(p);}
+
+/* ─── invoice sheet ─── */
+function openSheet(id){const u=units.find(x=>x.id===id);const e=eU(u),w=wU(u),tot=totalOf(u);
+  document.getElementById('sh-room').textContent="ห้อง / Room "+id;document.getElementById('sh-sub').textContent=(u.tenant||"")+" · มิ.ย./Jun 2026 · #"+(400000+id);
+  document.getElementById('sh-calc').innerHTML=`<tr><td>ค่าเช่า <span class="en">Rent</span></td><td>${fmt(u.rent)}</td></tr><tr><td>ค่าไฟ <span class="en">Elec (${u.ePrev} ${u.eCurr??'—'}) ${e}u×฿${ELEC_RATE}</span></td><td>${fmt(e*ELEC_RATE)}</td></tr><tr><td>ค่าน้ำ <span class="en">Water (${u.wPrev} ${u.wCurr??'—'}) ${w}u×฿${WATER_RATE}</span></td><td>${fmt(w*WATER_RATE)}</td></tr>${SERVICE_FEE>0?`<tr><td>ค่าส่วนกลาง <span class="en">Service</span></td><td>${fmt(SERVICE_FEE)}</td></tr>`:''}<tr><td>รวม / Total</td><td>${fmt(tot)}</td></tr>`;
+  const pay=payAmtOf(tot,u);
+  document.getElementById('sh-amt').innerHTML=fmt2(pay)+' <span style="font-size:10px;color:var(--muted)">(บิล '+fmt(tot)+')</span>';document.getElementById('sh-pp').textContent=PP_ID;document.getElementById('sh-ref').textContent="SR47-"+id;
+  document.getElementById('sh-qr').innerHTML="";new QRCode(document.getElementById('sh-qr'),{text:ppPayload(pay),width:150,height:150,correctLevel:QRCode.CorrectLevel.M});
+  document.getElementById('sh-line').textContent=`🏢 Seri 47 Residence\nบิล/Invoice มิ.ย. · ห้อง ${id}\n\nค่าเช่า ${fmt(u.rent)}\nค่าไฟ ${e}u ${fmt(e*ELEC_RATE)}\nค่าน้ำ ${w}u ${fmt(w*WATER_RATE)}\n──────\nรวม ${fmt(tot)}\nชำระ/Pay ${fmt2(payAmtOf(tot,u))}\n\n📲 สแกน PromptPay · Ref SR47-${id}`;
+  document.getElementById('ov').classList.add('open');}
+function closeSheet(){document.getElementById('ov').classList.remove('open');document.getElementById('sheet').innerHTML=sheetTpl;}
+function openTenant(id){const u=units.find(x=>x.id===id);
+  document.getElementById('sheet').innerHTML=`
+    <div class="sh-handle"></div>
+    <div class="sh-title">ห้อง / Room ${id}</div>
+    <div class="sh-sub">ข้อมูลผู้พัก & การติดต่อ / Tenant & contact</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:3px">ชื่อ / Name</div>
+    <input class="form-input" value="${u.tenant||''}" onchange="units.find(x=>x.id===${id}).tenant=this.value;renderBill();renderRooms()">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:3px">เบอร์โทร / Phone <span style="opacity:.7">(ทางเลือก/optional)</span></div>
+    <input class="form-input" value="${u.phone||''}" onchange="units.find(x=>x.id===${id}).phone=this.value" placeholder="08x-xxxxxxx">
+    <div style="background:${u.lineLinked?'var(--gl)':'var(--goldl)'};border:1px solid ${u.lineLinked?'#b6e0c4':'#e0c070'};border-radius:10px;padding:11px;margin-bottom:10px;font-size:11px;line-height:1.5">
+      ${u.lineLinked?'🟢 <b>เชื่อม LINE แล้ว</b> / LINE linked — ส่งบิล/ข้อความได้ทันที':'🟡 <b>ยังไม่เชื่อม LINE</b> / not linked<br>ผู้พักต้องแอด <b>@seri47</b> แล้วกดลิงก์ห้อง → ระบบผูก LINE ↔ ห้องอัตโนมัติ'}
+    </div>
+    ${u.lineLinked?'':`<button class="btn btn-outline" onclick="toast('🔗 ส่งลิงก์เชื่อม LINE ทาง SMS แล้ว / link sent ✅')">🔗 ส่งลิงก์เชื่อม LINE (SMS) / Send LINE-link</button>`}
+    <button class="btn btn-line" ${u.lineLinked?'':'disabled'} onclick="closeSheet();openSheet(${id})">🧾 ดู & ส่งบิลห้องนี้ (LINE) / View &amp; send invoice</button>
+    <div style="font-size:11px;color:var(--muted);margin:8px 0 3px">ข้อความถึงห้องนี้ / Message this room</div>
+    <textarea class="form-input" id="msg1" placeholder="พิมพ์ข้อความ… / Type a message…"></textarea>
+    <button class="btn btn-primary" ${u.lineLinked?'':'disabled'} onclick="if(document.getElementById('msg1').value){closeSheet();toast('📨 ส่งถึงห้อง ${id} แล้ว / Sent ✅')}else toast('พิมพ์ข้อความก่อน / type a message')">📨 ส่งข้อความนี้ (LINE) / Send message</button>
+    <button class="btn btn-outline" onclick="closeSheet()">ปิด / Close</button>`;
+  document.getElementById('ov').classList.add('open');}
+let sheetTpl;
+function bulkSend(){const list=occ();document.getElementById('ov').classList.add('open');
+  document.getElementById('sheet').innerHTML=`<div class="sh-handle"></div><div class="sh-title">📨 กำลังส่ง LINE</div><div class="sh-sub">Sending invoices…</div><div class="sending"><div id="sc" style="font-size:34px;font-weight:700;color:var(--line)">0</div><div style="font-size:11px;color:var(--muted)">/ ${list.length} ห้อง</div><div class="send-bar"><div class="send-fill" id="sf"></div></div></div>`;
+  let i=0;const t=setInterval(()=>{i++;document.getElementById('sc').textContent=i;document.getElementById('sf').style.width=(i/list.length*100)+"%";
+    if(i>=list.length){clearInterval(t);list.forEach(u=>u.sent=true);persist();setTimeout(()=>{closeSheet();renderBill();alert("✅ ส่งสำเร็จ "+list.length+" ห้อง — LINE + PromptPay QR\n실제 운영: LINE Messaging API push 로 교체.");},420);}},20);}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display="block";clearTimeout(t._);t._=setTimeout(()=>t.style.display="none",1900);}
+sheetTpl=document.getElementById('sheet').innerHTML;
+</script>
+<div id="fb-status" style="position:fixed;bottom:4px;left:4px;font-size:9px;color:#7080a0;z-index:9999;background:rgba(255,255,255,.7);padding:1px 5px;border-radius:6px"></div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import {getDatabase,ref,set,onValue} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+const app=initializeApp({apiKey:"AIzaSyBudSDmzNR-JQXEIcebs2kKSVdu2GCSHds",authDomain:"bee-free-9350a.firebaseapp.com",databaseURL:"https://bee-free-9350a-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"bee-free-9350a",storageBucket:"bee-free-9350a.firebasestorage.app",messagingSenderId:"209878063440",appId:"1:209878063440:web:78fc19709239e7b5803455"});
+const db=getDatabase(app);const SREF=ref(db,"seri47/state");let booted=false;
+window.seri47Persist=function(){if(!window.units)return;const rooms={};window.units.forEach(u=>{rooms[u.id]={paid:!!u.paid,eCurr:(u.eCurr??null),wCurr:(u.wCurr??null),sent:!!u.sent,tenant:(u.tenant??null),phone:(u.phone??null),lineLinked:!!u.lineLinked};});set(SREF,{rooms:rooms,ts:Date.now()}).then(function(){var e=document.getElementById("fb-status");if(e)e.textContent="☁️ บันทึกแล้ว / saved";}).catch(function(){});};
+onValue(SREF,function(snap){

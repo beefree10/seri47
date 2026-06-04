@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seri 47 — Smart Billing v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --primary:#1a5fa8;--primary2:#2e7dd4;--pl:#e8f2fc;
+  --green:#1a7a3a;--green2:#2a9a50;--gl:#e8f8ee;
+  --gold:#b07820;--gold2:#d49030;--goldl:#fdf4e0;
+  --red:#c0321a;--redl:#fdf0ee;--orange:#c85a10;--ol:#fff0e4;
+  --dark:#1a1a2a;--bg:#f4f7fc;--surface:#fff;
+  --border:#dde3ee;--muted:#7080a0;--text:#1e2535;--line:#06C755;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:40px}
+.status-bar{background:#0a2240;color:#90bbee;text-align:center;font-size:10px;padding:4px 8px;position:sticky;top:0;z-index:200}
+.topbar{background:var(--dark);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:22px;z-index:150}
+.topbar-left{display:flex;align-items:center;gap:8px}
+.topbar-badge{font-size:10px;color:var(--gold2);font-weight:700;background:rgba(210,144,48,.15);border:1px solid rgba(210,144,48,.3);border-radius:8px;padding:2px 7px}
+.topbar-title{font-size:13px;color:#fff;font-weight:600}
+.wrap{padding:14px 12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.card-sub{font-size:10px;color:var(--muted);margin-bottom:12px}
+.month-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.month-input{flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;color:var(--text)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 8px;text-align:center}
+.stat-val{font-size:21px;font-weight:700}
+.stat-lab{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.3}
+.rate-row{display:flex;gap:8px;margin-bottom:12px}
+.rate-pill{flex:1;background:var(--pl);border:1.5px solid #c0d8f0;border-radius:10px;padding:8px 10px;font-size:11px;display:flex;align-items:center;gap:5px;color:var(--primary);font-weight:700}
+.rate-pill input{width:42px;padding:3px 5px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;text-align:center}
+.step{display:flex;gap:11px;padding:13px 0;border-bottom:1px dashed var(--border)}
+.step:last-child{border:none;padding-bottom:2px}
+.step-no{width:26px;height:26px;border-radius:50%;background:var(--pl);color:var(--primary);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step.done .step-no{background:var(--green);color:#fff}
+.step-body{flex:1}
+.step-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.step-title .en{font-size:9px;color:var(--muted);font-weight:400}
+.step-desc{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:9px}
+.btn{display:block;width:100%;padding:12px;border:none;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:8px;text-align:center}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-green{background:var(--green);color:#fff}
+.btn-line{background:var(--line);color:#fff}
+.btn-outline{background:transparent;color:var(--primary);border:1.5px solid var(--primary)}
+.btn-row{display:flex;gap:8px}.btn-row .btn{margin-bottom:0}
+.btn-sm{padding:6px 10px;font-size:11px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;font-weight:700;width:auto;display:inline-block}
+.btn-sm-out{background:transparent;color:var(--primary);border:1.5px solid var(--primary)}
+.ring-wrap{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.ring{position:relative;width:58px;height:58px;flex-shrink:0}
+.ring svg{transform:rotate(-90deg)}
+.ring-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--primary)}
+.ring-txt small{font-size:8px;color:var(--muted);font-weight:400}
+.read-status{font-size:11px;color:var(--muted);min-height:16px;margin-top:6px;line-height:1.5}
+.read-status.live{color:var(--green);font-weight:700}.read-status.demo{color:var(--gold);font-weight:700}
+.read-last{background:var(--gl);border:1px solid #b6e0c4;border-radius:9px;padding:8px 11px;font-size:11px;margin-top:8px;display:none}
+.unit-sel{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;margin-bottom:8px;color:var(--text)}
+.floor-sel{display:flex;gap:6px;margin:10px 0;overflow-x:auto}
+.floor-btn{padding:6px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--muted);white-space:nowrap;font-family:inherit}
+.floor-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{text-align:left;color:var(--muted);font-weight:700;font-size:9px;padding:6px 4px;border-bottom:2px solid var(--border)}
+.tbl td{padding:8px 4px;border-bottom:1px solid var(--border);vertical-align:top}
+.tbl tr:last-child td{border:none}
+.tbl .rm{font-weight:700}.tbl .nm{font-size:9px;color:var(--muted)}
+.cell-in{width:52px;padding:5px 5px;border:1.5px solid var(--border);border-radius:7px;font-size:11px;font-family:inherit;text-align:right}
+.cell-in.filled{border-color:var(--green2);background:var(--gl)}
+.tot{font-weight:700;color:var(--primary);text-align:right;white-space:nowrap}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;font-weight:700}
+.b-paid{background:var(--gl);color:var(--green)}.b-pending{background:var(--goldl);color:var(--gold)}
+.b-vacant{background:#f0f0f8;color:#5050a0}.b-ready{background:var(--pl);color:var(--primary)}
+.link{color:var(--primary);font-size:10px;cursor:pointer;font-weight:700;text-decoration:underline}
+.sum-bar{position:sticky;bottom:0;background:var(--surface);border-top:2px solid var(--border);margin:0 -12px -40px;padding:11px 14px 18px;display:flex;align-items:center;justify-content:space-between;z-index:120}
+.sum-bar .big{font-size:18px;font-weight:700;color:var(--primary)}
+.sum-bar .lab{font-size:9px;color:var(--muted)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;align-items:flex-end;justify-content:center}
+.overlay.open{display:flex}
+.sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:18px 18px 30px;max-height:92vh;overflow-y:auto;animation:su .25s}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sh-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px}
+.sh-title{font-size:16px;font-weight:700;margin-bottom:3px}
+.sh-sub{font-size:10px;color:var(--muted);margin-bottom:14px}
+.inv-table{width:100%;border-collapse:collapse;margin-bottom:12px}
+.inv-table td{padding:9px 4px;font-size:12px;border-bottom:1px solid var(--border)}
+.inv-table tr:last-child td{border:none;font-weight:700;font-size:15px;color:var(--primary);padding-top:11px}
+.inv-table td:last-child{text-align:right;white-space:nowrap}
+.inv-table .en{font-size:9px;color:var(--muted)}
+.qr-amount{text-align:center;font-size:28px;font-weight:700;color:var(--primary);margin-bottom:2px}
+.qr-cap{text-align:center;font-size:10px;color:var(--muted);margin-bottom:10px}
+.qr-center{text-align:center;margin-bottom:8px}
+.qr-box{display:inline-block;background:#fff;border:2px solid var(--border);border-radius:14px;padding:12px}
+.qr-pp{display:flex;align-items:center;justify-content:center;gap:6px;font-size:10px;color:var(--muted);margin-bottom:12px}
+.qr-pp b{color:#003d6b}
+.line-preview{background:var(--line);border-radius:12px;padding:12px;margin-bottom:10px;color:#fff}
+.line-header{display:flex;align-items:center;gap:7px;margin-bottom:8px;font-size:12px;font-weight:700}
+.line-body{background:rgba(255,255,255,.16);border-radius:8px;padding:10px;font-size:11px;line-height:1.85;white-space:pre-line}
+.prod-note{background:#fffaf0;border:1px dashed var(--gold2);border-radius:11px;margin-bottom:12px;overflow:hidden}
+.prod-head{padding:11px 13px;font-size:12px;font-weight:700;color:var(--gold);cursor:pointer;display:flex;justify-content:space-between}
+.prod-body{padding:0 13px 13px;font-size:10px;color:#806020;line-height:1.7;display:none}
+.prod-body.open{display:block}
+.prod-body code{background:#f5edda;padding:1px 5px;border-radius:4px;font-size:9px}
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1a1a2a;color:#fff;padding:11px 22px;border-radius:22px;font-size:12px;font-weight:600;display:none;z-index:9999;max-width:90vw;text-align:center}
+.sending{text-align:center;padding:10px 0}
+.send-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin:10px 0}
+.send-fill{height:100%;width:0;background:var(--line);transition:width .15s}
+</style>
+</head>
+<body>
+<div class="status-bar">🏢 Seri 47 Residence — ระบบจัดการอัจฉริยะ / Smart Management · Powered by 🐝 BeeHome</div>
+<div class="topbar">
+  <div class="topbar-left"><span class="topbar-badge">🔑 ผู้จัดการ / Manager</span><span class="topbar-title">Seri 47 Residence</span></div>
+  <span style="font-size:10px;color:var(--muted)">v3 · Opus</span>
+</div>
+<div class="wrap">
+  <div class="month-row">
+    <input type="month" class="month-input" id="month" value="2026-06">
+    <button class="btn-sm btn-sm-out" onclick="resetAll()">↺ รีเซ็ต / Reset</button>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-val" id="s-occ" style="color:var(--primary)">0</div><div class="stat-lab">มีผู้พัก<br>Occupied</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-read" style="color:var(--gold)">0</div><div class="stat-lab">ตรวจมิเตอร์<br>Metered</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-sent" style="color:var(--green)">0</div><div class="stat-lab">ส่งแล้ว<br>Sent</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⚡ ออกบิลอัจฉริยะ / Smart Billing</div>
+    <div class="card-sub">ถ่ายรูป → สร้างบิล → ส่ง / photo → generate → send</div>
+
+    <div class="rate-row">
+      <div class="rate-pill">⚡ ไฟ/u <input type="number" step="0.01" id="rate-e" value="5.10" onchange="ELEC_RATE=+this.value||5.10;renderTable()"> ฿</div>
+      <div class="rate-pill">💧 น้ำ/u <input type="number" step="0.01" id="rate-w" value="15" onchange="WATER_RATE=+this.value||15;renderTable()"> ฿</div>
+      <div class="rate-pill">🏛️ ส่วนกลาง <input type="number" id="rate-s" value="0" onchange="SERVICE_FEE=+this.value||0;renderTable()"> ฿</div>
+    </div>
+    <div style="font-size:9px;color:var(--muted);margin:-6px 0 12px;line-height:1.55">📢 ประกาศอาคาร: ค่าไฟ ฿5.10 · ค่าน้ำ ฿15 (เริ่มบิล มิ.ย.) · ค่าบริการส่วนกลาง เริ่มบิล ก.ค.<br>건물 공지 반영: 전기 ฿5.10 · 수도 ฿15 (6월~) · 공용 서비스료 (7월~, 이달 말 상세)</div>
+
+    <div class="step" id="step1">
+      <div class="step-no">1</div>
+      <div class="step-body">
+        <div class="step-title">📸 ถ่ายรูปมิเตอร์ — AI อ่านอัตโนมัติ <span class="en">/ Photograph meter — AI reads it</span></div>
+        <div class="ring-wrap">
+          <div class="ring"><svg width="58" height="58"><circle cx="29" cy="29" r="24" stroke="#e8eef7" stroke-width="6" fill="none"/><circle id="ring-fg" cx="29" cy="29" r="24" stroke="#1a5fa8" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="150.8"/></svg><div class="ring-txt"><span id="ring-n">0</span><small>/ 87</small></div></div>
+          <div style="flex:1">
+            <div class="step-desc" style="margin-bottom:6px">เลือกห้อง แล้วถ่ายรูปมิเตอร์ไฟ — Claude อ่านเลขให้<br>Pick a room, snap the electricity meter — Claude reads it.</div>
+            <select class="unit-sel" id="read-unit"></select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="document.getElementById('meter-file').click()">📷 ถ่าย · AI อ่าน<br><span style="font-size:9px;opacity:.85">Snap · AI read (1 room)</span></button>
+          <button class="btn btn-outline" onclick="autoAll()">⚡ ตรวจทั้งตึก (เดโม)<br><span style="font-size:9px;opacity:.85">Auto-fill all (demo)</span></button>
+        </div>
+        <input type="file" id="meter-file" accept="image/*" capture="environment" style="display:none" onchange="onPhoto(event)">
+        <div style="font-size:9px;color:var(--muted);margin-top:7px;line-height:1.6">📷 = AI อ่านจริงจากรูป ทีละห้อง · ⚡ = เติมเลขสุ่มทดสอบทุกห้อง <b>ไม่ใช่ AI</b> · ✏️ พิมพ์เองในตารางด้านล่าง<br><span style="opacity:.8">📷 real AI read · ⚡ demo random fill (not AI) · ✏️ or type in the table</span></div>
+        <div class="read-status" id="read-status">รอการตรวจมิเตอร์ / Awaiting meter reading…</div>
+        <div class="read-last" id="read-last"></div>
+      </div>
+    </div>
+
+    <div class="step" id="step2">
+      <div class="step-no">2</div>
+      <div class="step-body">
+        <div class="step-title">🧾 สร้างใบแจ้งหนี้อัตโนมัติ <span class="en">/ Auto-generate invoices</span></div>
+        <div class="step-desc">ค่าเช่า + ค่าไฟ (หน่วย×฿<span class="re">5.10</span>) + ค่าน้ำ (หน่วย×฿<span class="rw">15</span>) รวมทุกห้อง<br>Rent + electricity + water (both metered), summed for every room.</div>
+        <button class="btn btn-primary" id="gen-btn" onclick="generate()" disabled>🧮 สร้างบิลทั้งหมด / Generate all invoices</button>
+      </div>
+    </div>
+
+    <div class="step" id="step3">
+      <div class="step-no">3</div>
+      <div class="step-body">
+        <div class="step-title">📨 ส่งทาง LINE คลิกเดียว <span class="en">/ Send via LINE — one click</span></div>
+        <div class="step-desc">ส่งบิล + PromptPay QR ให้ทุกห้องพร้อมกัน<br>Push invoice + PromptPay QR to all rooms at once.</div>
+        <button class="btn btn-line" id="send-btn" onclick="bulkSend()" disabled>📨 ส่ง <span id="send-n">87</span> ห้อง / Send rooms</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="review-card">
+    <div class="card-title">📋 ป้อน & ตรวจสอบบิล / Enter &amp; Review <span style="font-size:10px;color:var(--muted);font-weight:400">— แตะแก้ไฟ·น้ำได้ / tap to edit</span></div>
+    <div class="floor-sel" id="floor-sel"></div>
+    <table class="tbl"><thead><tr><th>ห้อง<br>Room</th><th>⚡ ไฟ·มิเตอร์<br>Elec read</th><th>💧 น้ำ·มิเตอร์<br>Water read</th><th style="text-align:right">รวม<br>Total</th><th></th></tr></thead>
+    <tbody id="tbody"></tbody></table>
+    <div class="sum-bar"><div><div class="lab">ยอดรวมทั้งตึก / Building total</div><div class="big" id="grand">฿0</div></div><div style="text-align:right"><div class="lab">ออกบิล / Invoiced</div><div class="big" id="billed-cnt" style="color:var(--green)">0</div></div></div>
+  </div>
+
+  <div class="prod-note">
+    <div class="prod-head" onclick="this.nextElementSibling.classList.toggle('open')">⚙️ การเชื่อมต่อจริง / Production wiring ▾</div>
+    <div class="prod-body">
+      สลับ 4 จุดเพื่อใช้งานจริง / Swap 4 points to go live:<br>
+      ① <b>AI 검침</b> — <code>readMeter()</code> → Claude Vision. 온라인이면 실제 판독, 오프라인이면 데모 폴백.<br>
+      ② <b>LINE 발송</b> — <code>bulkSend()</code> → LINE Messaging API push.<br>
+      ③ <b>PromptPay</b> — <code>PP_ID</code> 를 빌딩주 새 계좌 PromptPay 번호로 교체. QR은 EMVCo+CRC16, 실제 스캔됨.<br>
+      ④ <b>단가</b> — 화면 상단에서 단가 조정. 공지 반영: 전기 ฿5.10 · 수도 ฿15 · 서비스료 7월~.
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="sheet-ov" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-title" id="sh-room">ห้อง / Room</div>
+    <div class="sh-sub" id="sh-tenant"></div>
+    <table class="inv-table" id="sh-calc"></table>
+    <div class="qr-amount" id="sh-amt">฿0</div>
+    <div class="qr-cap">สแกนเพื่อชำระ — PromptPay / Scan to pay</div>
+    <div class="qr-center"><div class="qr-box" id="sh-qr"></div></div>
+    <div class="qr-pp">🔵 PromptPay · <b id="sh-ppid"></b> · Ref: <b id="sh-ref"></b></div>
+    <div class="line-preview"><div class="line-header">💬 ข้อความ LINE / LINE message</div><div class="line-body" id="sh-line"></div></div>
+    <button class="btn btn-line" onclick="closeSheet();toast('ส่งแล้ว / Sent ✅')">📨 ส่งห้องนี้ / Send this room</button>
+    <button class="btn btn-outline" onclick="closeSheet()">ปิด / Close</button>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ─────────── RATES (editable in UI) ─────────── */
+let ELEC_RATE=5.10; /* 전기 ฿/유닛 — 공지: ฿8 → ฿5.10 (6월 청구분부터) */
+let WATER_RATE=15;  /* 수도 ฿/유닛 — 공지: → ฿15 (6월 청구분부터) */
+let SERVICE_FEE=0;  /* 공용 서비스료/호실 — 7월 청구분부터 (이달 말 상세 공지 예정) */
+
+/* ─────────── DATA: 100 units (5 floors × 20), elec + water meters ─────────── */
+const NAMES=["Somchai P.","Wang Wei","Kim Sunhee","Lee Jaeho","Nguyen Anh","Suda K.","Chen Lin","Tanaka Y.","Aphirak S.","Zhang Hua","Park Min","Niran T.","Li Na","Somsak R.","Wu Fang","Pim W.","Zhao Lei","Aroon P.","Yuki M.","Kanya S."];
+let units=[];
+function buildUnits(){
+  units=[];
+  for(let f=1;f<=5;f++){for(let r=1;r<=20;r++){
+    const id=f*100+r;
+    const vacant=(id*7%100)<13;
+    const big=(r%20===0);
+    units.push({id,floor:f,tenant:vacant?null:NAMES[(id+f)%NAMES.length],
+      rent:vacant?0:(big?4200:3800),
+      ePrev:vacant?0:(1500+(id*13%900)), eCurr:null,   /* electricity meter */
+      wPrev:vacant?0:(500+(id*7%280)),  wCurr:null,    /* water meter */
+      vacant, sent:false});
+  }}
+}
+buildUnits();
+const occ=()=>units.filter(u=>!u.vacant);
+const metered=()=>occ().filter(u=>u.eCurr!=null);
+const eUnits=u=>(u.eCurr!=null&&u.ePrev!=null)?Math.max(0,u.eCurr-u.ePrev):0;
+const wUnits=u=>(u.wCurr!=null&&u.wPrev!=null)?Math.max(0,u.wCurr-u.wPrev):0;
+const totalOf=u=>u.rent+eUnits(u)*ELEC_RATE+wUnits(u)*WATER_RATE+(SERVICE_FEE||0);
+
+/* ─────────── PromptPay EMVCo QR (real, scannable) ─────────── */
+const PP_ID="0812345678"; /* ← 빌딩주 새 계좌 PromptPay 번호로 교체 */
+function tlv(id,v){return id+String(v.length).padStart(2,"0")+v;}
+function crc16(s){let c=0xFFFF;for(let i=0;i<s.length;i++){c^=s.charCodeAt(i)<<8;for(let j=0;j<8;j++){c=(c&0x8000)?((c<<1)^0x1021):(c<<1);c&=0xFFFF;}}return c.toString(16).toUpperCase().padStart(4,"0");}
+function ppPhone(p){const d=p.replace(/\D/g,"").replace(/^0/,"");return "0066"+d;}
+function ppPayload(amount){const m=tlv("00","A000000677010111")+tlv("01",ppPhone(PP_ID));let p=tlv("00","01")+tlv("01","12")+tlv("29",m)+tlv("53","764")+tlv("54",Number(amount).toFixed(2))+tlv("58","TH");p+="6304";return p+crc16(p);}
+
+/* ─────────── render ─────────── */
+let curFloor=1, generated=false;
+function fmt(n){return "฿"+Number(n).toLocaleString(undefined,{maximumFractionDigits:2});}
+function refreshStats(){
+  document.getElementById('s-occ').textContent=occ().length;
+  document.getElementById('s-read').textContent=metered().length;
+  document.getElementById('s-sent').textContent=occ().filter(u=>u.sent).length;
+  const n=metered().length, tot=occ().length;
+  document.getElementById('ring-n').textContent=n;
+  document.querySelector('.ring-txt small').textContent="/ "+tot;
+  document.getElementById('ring-fg').style.strokeDashoffset=150.8*(1-n/tot);
+  document.getElementById('send-n').textContent=tot;
+  document.getElementById('step1').classList.toggle('done',n===tot);
+  document.getElementById('gen-btn').disabled=(n===0);
+  document.getElementById('step2').classList.toggle('done',generated);
+  document.getElementById('send-btn').disabled=!generated;
+  document.querySelectorAll('.re').forEach(e=>e.textContent=ELEC_RATE);
+  document.querySelectorAll('.rw').forEach(e=>e.textContent=WATER_RATE);
+}
+function fillUnitSelect(){
+  const sel=document.getElementById('read-unit');
+  sel.innerHTML=occ().map(u=>`<option value="${u.id}">ห้อง ${u.id} · ${u.tenant} ${u.eCurr!=null?'✅':''}</option>`).join("");
+  const next=occ().find(u=>u.eCurr==null); if(next) sel.value=next.id;
+}
+function renderFloors(){
+  document.getElementById('floor-sel').innerHTML=[1,2,3,4,5].map(f=>`<button class="floor-btn ${f===curFloor?'active':''}" onclick="curFloor=${f};renderFloors();renderTable()">ชั้น ${f}<br><span style="font-size:9px">Floor ${f}</span></button>`).join("");
+}
+function statusBadge(u){
+  if(u.vacant)return '<span class="badge b-vacant">ว่าง/Vacant</span>';
+  if(u.sent)return '<span class="badge b-paid">ส่งแล้ว/Sent</span>';
+  if(u.eCurr!=null)return '<span class="badge b-ready">พร้อม/Ready</span>';
+  return '<span class="badge b-pending">รอ/Wait</span>';
+}
+function renderTable(){
+  const rows=units.filter(u=>u.floor===curFloor).map(u=>{
+    if(u.vacant)return `<tr style="opacity:.5"><td class="rm">${u.id}</td><td colspan="3" class="nm">— ว่าง / vacant —</td><td>${statusBadge(u)}</td></tr>`;
+    const e=eUnits(u), w=wUnits(u);
+    return `<tr>
+      <td><div class="rm">${u.id}</div><div class="nm">${u.tenant}</div></td>
+      <td><input class="cell-in ${u.eCurr!=null?'filled':''}" type="number" value="${u.eCurr??''}" placeholder="ก่อน ${u.ePrev}" oninput="setE(${u.id},this.value,this)"><div class="nm" id="eu-${u.id}" style="text-align:right;margin-top:3px">${e?e+'u · '+fmt(e*ELEC_RATE):'พิมพ์เลข'}</div></td>
+      <td><input class="cell-in ${u.wCurr!=null?'filled':''}" type="number" value="${u.wCurr??''}" placeholder="ก่อน ${u.wPrev}" oninput="setW(${u.id},this.value,this)"><div class="nm" id="wu-${u.id}" style="text-align:right;margin-top:3px">${w?w+'u · '+fmt(w*WATER_RATE):'พิมพ์เลข'}</div></td>
+      <td class="tot" id="tot-${u.id}">${fmt(totalOf(u))}</td>
+      <td><span class="link" onclick="openSheet(${u.id})">ดู/View</span><br>${statusBadge(u)}</td>
+    </tr>`;
+  }).join("");
+  document.getElementById('tbody').innerHTML=rows;
+  document.getElementById('grand').textContent=fmt(occ().reduce((s,u)=>s+totalOf(u),0));
+  document.getElementById('billed-cnt').textContent=generated?occ().length:metered().length;
+}
+function setE(id,v,el){const u=units.find(x=>x.id===id);u.eCurr=v===''?null:parseInt(v);if(el)el.classList.toggle('filled',u.eCurr!=null);refreshStats();updateTotals();}
+function setW(id,v,el){const u=units.find(x=>x.id===id);u.wCurr=v===''?null:parseInt(v);if(el)el.classList.toggle('filled',u.wCurr!=null);updateTotals();}
+function updateTotals(){
+  units.filter(u=>u.floor===curFloor&&!u.vacant).forEach(u=>{
+    const t=document.getElementById('tot-'+u.id); if(t)t.textContent=fmt(totalOf(u));
+    const e=document.getElementById('eu-'+u.id); if(e){const x=eUnits(u);e.textContent=x?x+'u · '+fmt(x*ELEC_RATE):'พิมพ์เลข';}
+    const w=document.getElementById('wu-'+u.id); if(w){const x=wUnits(u);w.textContent=x?x+'u · '+fmt(x*WATER_RATE):'พิมพ์เลข';}
+  });
+  document.getElementById('grand').textContent=fmt(occ().reduce((s,u)=>s+totalOf(u),0));
+}
+
+/* ─────────── meter reading (real Claude Vision + fallback) ─────────── */
+function setRead(msg,cls){const e=document.getElementById('read-status');e.textContent=msg;e.className="read-status "+(cls||"");}
+function toB64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});}
+async function readMeter(file){
+  const b64=await toB64(file); const mime=file.type||'image/jpeg';
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:[
+        {type:"image",source:{type:"base64",media_type:mime,data:b64}},
+        {type:"text",text:"This image is an electricity meter. Read the main cumulative numeric display (kWh). Reply ONLY a JSON object: {\"reading\": <integer>}. If unreadable: {\"reading\": null}."}
+      ]}]})});
+    const data=await res.json();
+    const txt=(data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("").trim();
+    const m=txt.match(/\{[\s\S]*?\}/);
+    if(m){const j=JSON.parse(m[0]); if(typeof j.reading==="number")return {reading:j.reading,live:true};}
+  }catch(e){}
+  return {reading:null,live:false};
+}
+async function onPhoto(ev){
+  const file=ev.target.files[0]; if(!file)return; ev.target.value="";
+  const id=parseInt(document.getElementById('read-unit').value);
+  const u=units.find(x=>x.id===id);
+  setRead("🤖 Claude กำลังอ่านมิเตอร์… / AI reading…");
+  const {reading}=await readMeter(file);
+  let val=reading, mode;
+  if(val==null||val<u.ePrev){ val=u.ePrev+(35+Math.floor(Math.random()*95)); mode="demo"; } else mode="live";
+  u.eCurr=val;
+  setRead(mode==="live"?"✅ Claude อ่านได้ / AI read OK":"📷 เดโม (ออฟไลน์) / demo fallback — API ไม่เชื่อมต่อ",mode);
+  const last=document.getElementById('read-last'); last.style.display="block";
+  last.innerHTML=`ห้อง <b>${id}</b> · ${u.tenant} → มิเตอร์ไฟ <b>${val}</b> (ใช้ ${eUnits(u)} หน่วย · ${fmt(eUnits(u)*ELEC_RATE)})`;
+  refreshStats(); fillUnitSelect(); renderTable();
+  toast(mode==="live"?"🤖 AI อ่านมิเตอร์ห้อง "+id:"📷 เดโม: ห้อง "+id);
+}
+function autoAll(){
+  occ().forEach(u=>{ if(u.eCurr==null)u.eCurr=u.ePrev+(35+Math.floor(Math.random()*95)); if(u.wCurr==null)u.wCurr=u.wPrev+(1+Math.floor(Math.random()*6)); });
+  setRead("⚡ ตรวจครบทั้งตึก (เดโม) / All metered (demo)","demo");
+  refreshStats(); fillUnitSelect(); renderTable();
+  toast("⚡ ตรวจมิเตอร์ครบ "+occ().length+" ห้อง");
+}
+
+/* ─────────── generate & send ─────────── */
+function generate(){
+  generated=true; renderFloors(); renderTable(); refreshStats();
+  document.getElementById('review-card').scrollIntoView({behavior:"smooth"});
+  toast("🧾 สร้างบิล "+occ().length+" ห้องแล้ว / Invoices ready");
+}
+function bulkSend(){
+  const list=occ();
+  const ov=document.getElementById('sheet-ov'); ov.classList.add('open');
+  document.querySelector('#sheet-ov .sheet').innerHTML=
+    `<div class="sh-handle"></div><div class="sh-title">📨 กำลังส่งทาง LINE</div><div class="sh-sub">Sending invoices via LINE…</div>
+     <div class="sending"><div id="send-cnt" style="font-size:34px;font-weight:700;color:var(--line)">0</div><div style="font-size:11px;color:var(--muted)">/ ${list.length} ห้อง</div>
+     <div class="send-bar"><div class="send-fill" id="send-fill"></div></div></div>`;
+  let i=0; const t=setInterval(()=>{
+    i++; document.getElementById('send-cnt').textContent=i;
+    document.getElementById('send-fill').style.width=(i/list.length*100)+"%";
+    if(i>=list.length){clearInterval(t); list.forEach(u=>u.sent=true);
+      setTimeout(()=>{ closeSheet();
+        document.querySelector('#sheet-ov .sheet').innerHTML=document.getElementById('sheet-tpl').innerHTML;
+        refreshStats(); renderTable();
+        alert("✅ ส่งสำเร็จ "+list.length+" ห้อง\nLINE + PromptPay QR delivered.\n\n실제 운영: LINE Messaging API push 로 교체.");
+      },450);
+    }
+  },22);
+}
+
+/* ─────────── invoice sheet (matches real Seri47 invoice format) ─────────── */
+function openSheet(id){
+  const u=units.find(x=>x.id===id); const e=eUnits(u), w=wUnits(u); const tot=totalOf(u);
+  document.getElementById('sh-room').textContent="ห้อง / Room "+id;
+  document.getElementById('sh-tenant').textContent=(u.tenant||"")+" · "+document.getElementById('month').value+" · Invoice #"+(400000+id);
+  document.getElementById('sh-calc').innerHTML=
+    `<tr><td>ค่าเช่า <span class="en">Rental Fee</span></td><td>${fmt(u.rent)}</td></tr>
+     <tr><td>ค่าไฟ <span class="en">Electricity (${u.ePrev} ${u.eCurr??'—'}) ${e}u ×฿${ELEC_RATE}</span></td><td>${fmt(e*ELEC_RATE)}</td></tr>
+     <tr><td>ค่าน้ำ <span class="en">Water (${u.wPrev} ${u.wCurr??'—'}) ${w}u ×฿${WATER_RATE}</span></td><td>${fmt(w*WATER_RATE)}</td></tr>
+     ${SERVICE_FEE>0?`<tr><td>ค่าบริการส่วนกลาง <span class="en">Service Fee</span></td><td>${fmt(SERVICE_FEE)}</td></tr>`:''}
+     <tr><td>ยอดรวม / Total</td><td>${fmt(tot)}</td></tr>`;
+  document.getElementById('sh-amt').textContent=fmt(tot);
+  document.getElementById('sh-ppid').textContent=PP_ID;
+  document.getElementById('sh-ref').textContent="SR47-"+id;
+  document.getElementById('sh-qr').innerHTML="";
+  new QRCode(document.getElementById('sh-qr'),{text:ppPayload(tot),width:150,height:150,correctLevel:QRCode.CorrectLevel.M});
+  document.getElementById('sh-line').textContent=
+`🏢 Seri 47 Residence
+ใบแจ้งหนี้ / Invoice · ${document.getElementById('month').value}
+ห้อง/Room ${id}
+
+ค่าเช่า/Rent           ${fmt(u.rent)}
+ค่าไฟ/Elec ${e}u        ${fmt(e*ELEC_RATE)}
+ค่าน้ำ/Water ${w}u       ${fmt(w*WATER_RATE)}
+─────────────
+รวม/Total            ${fmt(tot)}
+
+📲 สแกน PromptPay QR เพื่อชำระ
+Ref: SR47-${id}`;
+  document.getElementById('sheet-ov').classList.add('open');
+}
+function closeSheet(){document.getElementById('sheet-ov').classList.remove('open');}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display="block";clearTimeout(t._);t._=setTimeout(()=>t.style.display="none",1900);}
+function resetAll(){buildUnits();generated=false;document.getElementById('read-last').style.display="none";setRead("รอการตรวจมิเตอร์ / Awaiting meter reading…");renderFloors();renderTable();refreshStats();fillUnitSelect();toast("↺ รีเซ็ตแล้ว / Reset");}
+
+const tpl=document.createElement('template'); tpl.id='sheet-tpl';
+tpl.innerHTML=document.querySelector('#sheet-ov .sheet').innerHTML; document.body.appendChild(tpl);
+
+fillUnitSelect(); renderFloors(); renderTable(); refreshStats();
+</script>
+</body>
+</html>
