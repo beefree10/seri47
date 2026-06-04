@@ -39,3 +39,5 @@ Seri47 검침 앱을 **관리인이 매일 쓰는 완성된 실동작 앱**으�
 - 2026-06-03 · **LINE AI CS 자동응답 완성.** Cloudflare Worker(seri47-line-webhook) 배포. BEE Free OA Webhook 연결. Claude Haiku 자동응답 한국어·영어·태국어 테스트 완료. 411호 userId 매핑 + csHistory Firebase 저장 확인.
 - 2026-06-03 · **Bitwarden 보안 설정.** API 키 전부 Bitwarden Secure Note로 이전.
 - 2026-06-03 · ctx.waitUntil 적용으로 Cloudflare CPU 타임아웃 문제 해결.
+- 2026-06-03 · Code 환경 이전. CLAUDE.md 규칙 수령(2회시도정지/작업전commit/키보안). 첫 세션 폴더 파악 완료.
+- 2026-06-03 · 오케스트레이터 반대질문. 에이전트 20여 명 중 실생산 이루 1명. "조직 짓기 ≠ 제품 만들기". 일 있는 에이전트만 Code 이전, 나머지 문서 보존(7조·ZERO_BASE 재확인).
