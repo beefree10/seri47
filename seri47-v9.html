@@ -218,6 +218,13 @@ textarea.form-input{min-height:70px;resize:vertical}
         <div class="ring"><svg width="54" height="54"><circle cx="27" cy="27" r="22" stroke="#e8eef7" stroke-width="6" fill="none"/><circle id="ringfg" cx="27" cy="27" r="22" stroke="#1a5fa8" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="138.2"/></svg><div class="ring-txt"><span id="ringn">0</span><small id="ringd">/ 0</small></div></div>
         <div style="flex:1;font-size:11px;color:var(--muted);line-height:1.5">แผงกว้าง → <b>ถ่ายหลายรูป</b> AI อ่านพร้อมกัน</div>
       </div>
+      <div style="background:#fff9e6;border:1px solid #f0c040;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:12px;line-height:1.7;color:#5a4000">
+        📹 <b>동영상 촬영 가이드</b><br>
+        1. 방 번호 스티커가 보이게 위치 잡기<br>
+        2. 숫자에 가까이 → <b>1초 정지</b> (흔들리지 않게)<br>
+        3. 다음 방으로 이동<br>
+        ⏱ 1개당 1초 · 94개 ≈ 2분 · 예상 파일 30~60MB
+      </div>
       <button class="btn btn-primary" onclick="openCamModal('multi')">📷 ถ่ายมิเตอร์ทั้งแผง / Multi-photo · AI<br><span style="font-size:9px;opacity:.85">แตะเพื่อเลือกวิธีถ่าย</span></button>
       <div class="btn-row">
         <button class="btn btn-outline" onclick="openCamModal('one')">📷 ทีละห้อง</button>
@@ -705,7 +712,7 @@ function closeCamModal(){document.getElementById('cam-overlay').classList.remove
 function camChoose(type){closeCamModal();document.getElementById('fi-'+camMode+'-'+type).click();}
 function setRead(m,c){const e=document.getElementById('read-status');e.textContent=m;e.className="read-status "+(c||"");}
 function toB64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});}
-async function visionMeters(file,multi){const b64=await toB64(file),mime=file.type||'image/jpeg';const prompt=multi?"For EACH meter read room label and kWh. JSON array only: [{\"room\":<int>,\"reading\":<int>}]":"One meter. Read kWh integer. JSON only: {\"reading\":<int>}";const res=await fetch(VISION_PROXY,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:4096,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:mime,data:b64}},{type:"text",text:prompt}]}]})});const raw=await res.text();if(!res.ok)throw new Error("API "+res.status);let d;try{d=JSON.parse(raw);}catch(e){throw new Error("parse fail");}if(d.error)throw new Error(d.error.message||"API error");let txt=((d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("")).replace(/```json/gi,"").replace(/```/g,"").trim();const o=multi?"[":"{",cl=multi?"]":"}";const s=txt.indexOf(o),e2=txt.lastIndexOf(cl);if(s<0||e2<s)throw new Error("no JSON");return JSON.parse(txt.slice(s,e2+1));}
+async function visionMeters(file,multi){const b64=await toB64(file),mime=file.type||'image/jpeg';const prompt=multi?"Look for room number labels (stickers/tags) and electric meter digits in this image. For EACH meter visible, return room number and kWh reading. Ignore walls, pipes, hands. JSON array only: [{\"room\":<int>,\"reading\":<int>}]":"Find the room number label AND the electric meter digits. Ignore everything else (walls, pipes, hands). Return JSON only: {\"room\":<int>,\"reading\":<int>}";const res=await fetch(VISION_PROXY,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:4096,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:mime,data:b64}},{type:"text",text:prompt}]}]})});const raw=await res.text();if(!res.ok)throw new Error("API "+res.status);let d;try{d=JSON.parse(raw);}catch(e){throw new Error("parse fail");}if(d.error)throw new Error(d.error.message||"API error");let txt=((d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("")).replace(/```json/gi,"").replace(/```/g,"").trim();const o=multi?"[":"{",cl=multi?"]":"}";const s=txt.indexOf(o),e2=txt.lastIndexOf(cl);if(s<0||e2<s)throw new Error("no JSON");return JSON.parse(txt.slice(s,e2+1));}
 function showThumbs(files){document.getElementById('thumbs').innerHTML="";[...files].forEach(f=>{const img=document.createElement('img');img.className='thumb';img.src=URL.createObjectURL(f);document.getElementById('thumbs').appendChild(img);});}
 async function onMulti(ev){const files=[...ev.target.files];if(!files.length)return;ev.target.value="";showThumbs(files);setRead("🤖 Claude อ่าน "+files.length+" รูป…");let applied=0,err=null;for(const f of files){try{const arr=await visionMeters(f,true);if(Array.isArray(arr)){arr.forEach(o=>{const rm=parseInt(o.room,10),rd=parseInt(o.reading,10),u=units.find(x=>x.id===rm&&!x.vac);if(u&&!isNaN(rd)){u.eCurr=rd;applied++;}});}}catch(e){err=e.message;}}if(err)setRead("⚠️ error: "+err,"demo");else if(applied===0)setRead("⚠️ ไม่พบ","demo");else setRead("✅ AI อ่าน "+applied+" ห้อง","live");renderBill();persist();toast(applied?"🤖 AI: "+applied+" ห้อง":"⚠️ "+(err?"error":"ไม่ตรง"));}
 async function onOne(ev){const f=ev.target.files[0];if(!f)return;ev.target.value="";showThumbs([f]);const id=+document.getElementById('read-unit').value,u=units.find(x=>x.id===id);setRead("🤖 อ่านมิเตอร์ห้อง "+id+"…");let val=null,err=null;try{const r=await visionMeters(f,false);const rd=r?parseInt(r.reading,10):NaN;if(!isNaN(rd))val=rd;}catch(e){err=e.message;}if(err){setRead("⚠️ error: "+err,"demo");renderBill();persist();return;}if(val==null){setRead("⚠️ ไม่สามารถอ่าน","demo");return;}u.eCurr=val;setRead("✅ อ่านได้","live");const l=document.getElementById('read-last');l.style.display="block";l.innerHTML=`ห้อง <b>${id}</b> → <b>${val}</b> (${eU(u)}u · ${fmt(eU(u)*ELEC_RATE)})`;renderBill();persist();toast("🤖 ห้อง "+id);}
@@ -755,7 +762,16 @@ async function onVideo(ev,mode){
     if(score>bestScore){bestScore=score;best=c;}
   }
   URL.revokeObjectURL(url);
-  const blob=await new Promise(res=>best.toBlob(res,'image/jpeg',0.92));
+  /* 800px 이하로 리사이즈 → 파일 크기 70% 감소 */
+  const MAX=800;
+  if(best.width>MAX||best.height>MAX){
+    const scale=Math.min(MAX/best.width,MAX/best.height);
+    const rc=document.createElement('canvas');
+    rc.width=Math.round(best.width*scale);rc.height=Math.round(best.height*scale);
+    rc.getContext('2d').drawImage(best,0,0,rc.width,rc.height);
+    best=rc;
+  }
+  const blob=await new Promise(res=>best.toBlob(res,'image/jpeg',0.75));
   const frameFile=new File([blob],'best_frame.jpg',{type:'image/jpeg'});
   showThumbs([frameFile]);
   setRead(`🤖 선명도 OK · Claude 판독 중…`,"demo");
