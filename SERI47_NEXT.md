@@ -1,6 +1,6 @@
 # SERI47 — NEXT
 **세션 시작 시 가장 먼저 읽을 파일**
-마지막 업데이트: 2026-06-04 (LINE QR 자동연결 + 호실 UI 정비)
+마지막 업데이트: 2026-06-05 (v9_1 계량기 검침 리뉴얼)
 
 ---
 
@@ -8,8 +8,8 @@
 
 | 항목 | 상태 |
 |---|---|
-| 최신 버전 | **v9** (로컬 전용 — 개인정보 포함, GitHub 배포 금지) |
-| v9 파일 위치 | `C:\Users\hp\OneDrive\문서\claude\AI native company\Seri47\seri47-v9.html` |
+| 최신 버전 | **v9_1** (배포 중 — beefree10.github.io/seri47) |
+| v9_1 파일 위치 | `seri47-v9_1.html` (배포용) / `seri47-v9_backup.html` (이전 백업) |
 | 호실 구조 | 94호 확정 (1F:101~110, 2~5F:각 21호) |
 | Firebase | bee-free-9350a · seri47/state 경로 |
 | Cloudflare Worker (계량기) | https://seri47-vision.jww8559.workers.dev (동결) |
@@ -19,7 +19,7 @@
 | PAT 토큰 | honeybee-deploy-2 · 만료 2026-06-30 |
 | LINE OA (테스트) | BEE Free @854lohns — Webhook 연결 완료 |
 | LINE OA (실제) | Seri47 OA — 아직 Webhook 미연결 (관리인 요청 필요) |
-| 계량기 메뉴 | **동결** — 더 이상 수정하지 않음 |
+| 계량기 메뉴 | v9_1 완료 — 사진 전용(카메라+갤러리), 1600px, 드럼 프롬프트 |
 
 ---
 

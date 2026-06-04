@@ -1,3 +1,26 @@
+## 2026-06-05 — v9_1 계량기 검침 리뉴얼 ✅
+
+### 변경 내용
+- **동영상 메뉴 완전 제거:** 카메라 모달에서 동영상 버튼 삭제, 관련 hidden input·JS 함수(calcSharpness·grabFrame·onVideo) 전부 제거
+- **동영상 촬영 가이드 박스 삭제:** "วิธีถ่ายวิดีโอมิเตอร์ / Video Guide" UI 제거
+- **사진 자동 압축:** compressImg() 추가 — 단장 800px / 다장(패널) 1600px
+- **드럼 미터 전용 프롬프트:** 롤러 경계 시 하위 숫자 채택, 시리얼번호 무시, Mitsubishi 드럼식 명시
+- **OCR 타이밍 로그:** visionMeters → Firebase ocr_log/{ts, ms, multi, found} 저장
+- **버전 파일 분리:** seri47-v9_backup.html(이전) / seri47-v9_1.html(현재)
+- **GitHub 배포:** deploy/ 폴더만 별도 git init → beefree10/seri47 main 브랜치 push
+
+### 테스트 결과
+- 15장 패널 사진: 선명한 미터 대부분 정확 인식 (321호 5347 등)
+- 1600px 상향 후 확연히 정확도 개선
+- Claude Vision 내부 처리 한계 ~1568px → 1600px이 사실상 최대치
+- 운영 권장: 8장씩 촬영 (미터당 ~200px → 거의 완벽)
+
+### 결론
+- 동영상 방식 폐기, 사진(카메라/갤러리) 단일화
+- 한 달 1회 검침: 8장×12회 = 96장으로 94호 전체 커버
+
+---
+
 ## 2026-06-04 — LINE QR 자동연결 + 호실 상태 UI 전면 정비 ✅
 
 ### LINE QR Auto-Link 완성
