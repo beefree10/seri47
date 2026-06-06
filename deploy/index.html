@@ -621,7 +621,7 @@ function maskPP(n){if(!n)return"—";return n.slice(0,2)+"****"+n.slice(-2);}
 /* LOGIN */
 let role=null,curFloorB=1,curFloorR=1;
 async function sha256hex(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
-const ROLE_PW={mg:"d1b79c5b436665ba286223e6bec412d24775a06d7dd1d23c39d44b0f67b4f825",own:"996a7d3104bb209d3028290cdb52e773735891a98db4da1e6ebeae2bf28715d7"};
+const ROLE_PW={mg:"7fa047a4a19fdb1aa9f4962ecfd9f56802b16d5ec6a063dcd883761e3ccd0350",own:"7fa047a4a19fdb1aa9f4962ecfd9f56802b16d5ec6a063dcd883761e3ccd0350"};
 let pendingRole=null;
 function login(r){if(ROLE_PW[r]){pendingRole=r;document.getElementById('pw-label').textContent=(r==='mg'?'รหัสผ่านผู้จัดการ':'รหัสผ่านเจ้าของ');document.getElementById('pw-input').value='';document.getElementById('pw-err').style.display='none';document.getElementById('pw-ov').style.display='flex';setTimeout(()=>document.getElementById('pw-input').focus(),60);}else doLogin(r);}
 async function pwSubmit(){const r=pendingRole;if(!r)return;const v=document.getElementById('pw-input').value;if((await sha256hex(v))===ROLE_PW[r]){document.getElementById('pw-ov').style.display='none';doLogin(r);}else document.getElementById('pw-err').style.display='block';}
