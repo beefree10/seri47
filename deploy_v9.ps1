@@ -1,4 +1,4 @@
-$token = "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"
+$token = "YOUR_GITHUB_TOKEN_HERE"
 $headers = @{"Authorization"="token $token";"Accept"="application/vnd.github+json";"Content-Type"="application/json"}
 $apiUrl = "https://api.github.com/repos/beefree10/seri47/contents/index.html"
 $src = "$PSScriptRoot\seri47-v9.html"

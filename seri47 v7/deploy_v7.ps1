@@ -1,4 +1,4 @@
-$token = "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"
+$token = "YOUR_GITHUB_TOKEN_HERE"
 $sha = "4daed03c83dec7e8ad116dfb25fd5bcf6613fb6b"
 $headers = @{
     "Authorization" = "token $token"

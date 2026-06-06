@@ -9,3 +9,7 @@ API bank.docx
 # 시스템 파일
 Thumbs.db
 .DS_Store
+
+# 배포 스크립트 (토큰 포함 가능)
+deploy_v*.ps1
+"seri47 v7/deploy_v7.ps1"
